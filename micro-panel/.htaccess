@@ -1,0 +1,10 @@
+RewriteEngine On
+
+# Remove .php extension from URLs
+RewriteCond %{REQUEST_FILENAME}.php -f
+RewriteRule ^([^\.]+)$ $1.php [L]
+
+# Ensure that the query string is passed along with the rewritten request
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ $1 [QSA,L]
