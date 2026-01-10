@@ -1,0 +1,163 @@
+/* Search Page Specific Styles */
+
+.disabled-place {
+    opacity: 0.5;
+    pointer-events: none;
+    position: relative;
+}
+
+.disabled-place::before {
+    content: 'Currently Unavailable';
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: rgba(239, 68, 68, 0.95);
+    color: white;
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 11px;
+    font-weight: 600;
+    z-index: 10;
+}
+
+.disabled-activity {
+    opacity: 0.4;
+    pointer-events: none;
+}
+
+.place-card {
+    cursor: pointer;
+    position: relative;
+    will-change: border-color, box-shadow;
+}
+
+.place-card.selected {
+    border: 3px solid #009688 !important;
+    box-shadow: 0 0 0 4px rgba(0, 150, 136, 0.15);
+    transition: none !important;
+}
+
+.card-checkbox {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    width: 32px;
+    height: 32px;
+    border: 3px solid white;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.95);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 5;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.card-checkbox::before {
+    content: '+';
+    color: #009688;
+    font-size: 20px;
+    font-weight: bold;
+    line-height: 1;
+}
+
+.place-card.selected .card-checkbox {
+    background: #009688;
+    border-color: #009688;
+    box-shadow: 0 2px 12px rgba(0, 150, 136, 0.4);
+}
+
+.place-card.selected .card-checkbox::before {
+    content: '✓';
+    color: white;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.activity-card {
+    cursor: pointer;
+    position: relative;
+    will-change: border-color, background-color;
+}
+
+.activity-card.selected {
+    border: 3px solid #009688 !important;
+    background: #f0fdfa;
+    box-shadow: 0 0 0 2px rgba(0, 150, 136, 0.1);
+    transition: none !important;
+}
+
+.activity-checkbox {
+    position: absolute;
+    top: 12px;
+    left: 10px;
+    width: 20px;
+    height: 20px;
+    border: 2px solid #d1d5db;
+    border-radius: 4px;
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 5;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+}
+
+.activity-checkbox::before {
+    content: '+';
+    color: #009688;
+    font-size: 14px;
+    font-weight: bold;
+    line-height: 1;
+}
+
+.activity-card.selected .activity-checkbox {
+    background: #009688;
+    border-color: #009688;
+    box-shadow: 0 1px 6px rgba(0, 150, 136, 0.3);
+}
+
+.activity-card.selected .activity-checkbox::before {
+    content: '✓';
+    color: white;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.selection-summary {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: white;
+    border-top: 2px solid #e5e7eb;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
+    z-index: 40;
+    transform: translateY(100%);
+    transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    will-change: transform;
+}
+
+.selection-summary.show {
+    transform: translateY(0);
+}
+
+/* Disable hover effects on cards and buttons */
+.place-card:hover,
+.activity-card:hover {
+    transform: none !important;
+    box-shadow: inherit !important;
+}
+
+/* Performance optimizations */
+.place-card,
+.activity-card {
+    transform: translateZ(0);
+    backface-visibility: hidden;
+}
+
+* {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
