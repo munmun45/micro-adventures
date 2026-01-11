@@ -17,7 +17,7 @@ CREATE TABLE IF NOT EXISTS admin_users (
 -- Insert Default Admin User (password: admin123)
 -- Password is hashed using password_hash() - default password: admin123
 INSERT INTO admin_users (username, email, password, full_name) VALUES
-('admin', 'admin@travelapp.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Administrator');
+('admin', 'admin@travelapp.com', '$2y$10$br.E82xhl6fUpnmPkXNrV.qkhsklvkFYXH2lVH.K3SObHp1xqijeG', 'Administrator');
 
 -- Sessions Table (for tracking admin sessions)
 CREATE TABLE IF NOT EXISTS admin_sessions (
@@ -70,6 +70,9 @@ CREATE TABLE IF NOT EXISTS districts (
     name VARCHAR(100) NOT NULL,
     description TEXT,
     image VARCHAR(255),
+    latitude DECIMAL(10,7),
+    longitude DECIMAL(10,7),
+    road_type ENUM('plain','hill','mixed') DEFAULT 'plain',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (state_id) REFERENCES states(id) ON DELETE CASCADE
 );
@@ -112,6 +115,29 @@ CREATE TABLE IF NOT EXISTS places (
     night_travel_safety TEXT,
     safety_level ENUM('High', 'Medium', 'Low', 'Worst') DEFAULT 'Medium',
     religion_restrictions TEXT,
+    -- Visit Timing & Crowd Data
+    best_time_of_day ENUM('morning','afternoon','evening','anytime'),
+    avg_visit_time_hours DECIMAL(3,1),
+    crowd_level ENUM('low','medium','high'),
+    avg_waiting_time_minutes INT,
+    -- Seasonal / Weather Risk
+    weather_dependency ENUM('low','medium','high'),
+    monsoon_risk ENUM('safe','risky','closed'),
+    sudden_closure_risk ENUM('rare','occasional','frequent'),
+    -- Family / Health Usability
+    child_friendly ENUM('yes','no'),
+    senior_friendly ENUM('yes','no'),
+    physical_effort ENUM('low','medium','high'),
+    -- Emergency Accessibility
+    nearest_hospital_distance_km DECIMAL(5,2),
+    police_response_level ENUM('good','medium','poor'),
+    -- Network & Power Availability
+    digital_amenities TEXT,
+    mobile_network ENUM('good','weak','none'),
+    internet_availability ENUM('yes','limited','no'),
+    -- Place Priority & Experience Quality
+    experience_score INT CHECK (experience_score BETWEEN 1 AND 5),
+    priority_level INT DEFAULT 3,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (city_id) REFERENCES districts(id) ON DELETE CASCADE
 );
@@ -152,6 +178,36 @@ CREATE TABLE IF NOT EXISTS place_activities (
     close_time TIME,
     available_months TEXT,
     ticket_price VARCHAR(100),
+    -- Activity Difficulty & Physical Load
+    difficulty_level ENUM('easy','moderate','hard'),
+    physical_effort ENUM('low','medium','high'),
+    -- Weather & Season Risk
+    weather_dependency ENUM('low','medium','high'),
+    monsoon_risk ENUM('safe','risky','closed'),
+    cancellation_chance ENUM('low','medium','high'),
+    -- Safety Gear & Requirements
+    safety_equipment_required ENUM('yes','no'),
+    equipment_provided ENUM('yes','partial','no'),
+    -- Supervision & Guide Quality
+    guide_mandatory ENUM('yes','no'),
+    operator_type ENUM('government','private','local'),
+    -- Time Flexibility & Buffer
+    buffer_time_minutes INT,
+    reporting_time TIME,
+    -- Crowd & Waiting Impact
+    crowd_level ENUM('low','medium','high'),
+    avg_waiting_time_minutes INT,
+    -- Age & Body Limitation (More Precise)
+    min_age INT,
+    max_age INT,
+    -- Medical Emergency Access
+    nearest_medical_distance_km DECIMAL(5,2),
+    emergency_support_level ENUM('good','medium','poor'),
+    -- Activity Stop Conditions
+    stop_conditions TEXT,
+    -- Family & Solo Travel Suitability
+    family_friendly ENUM('yes','no'),
+    solo_traveler_safe ENUM('yes','no'),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (place_id) REFERENCES places(id) ON DELETE CASCADE,
     FOREIGN KEY (activity_type_id) REFERENCES activity_types(id) ON DELETE CASCADE,
@@ -194,40 +250,40 @@ INSERT INTO states (country_id, name, description, image) VALUES
 (1, 'West Bengal', 'West Bengal is known for its rich cultural heritage, literature, art, and delicious cuisine. Kolkata is its cultural capital.', 'https://images.unsplash.com/photo-1501785888041-af3ef285b470');
 
 -- Insert Sample Cities (a few examples for each state)
-INSERT INTO districts (state_id, name, description, image) VALUES
+INSERT INTO districts (state_id, name, description, image, latitude, longitude, road_type) VALUES
 -- Andhra Pradesh
-(1, 'Visakhapatnam', 'Visakhapatnam, also known as Vizag, is a port city known for its beaches, hills, and industries.', 'https://images.unsplash.com/photo-1500534314209-a25ddb2bd429'),
-(1, 'Tirupati', 'Tirupati is famous for the Sri Venkateswara Temple, one of the most visited pilgrimage sites in India.', 'https://images.unsplash.com/photo-1548013146-72479768bada'),
+(1, 'Visakhapatnam', 'Visakhapatnam, also known as Vizag, is a port city known for its beaches, hills, and industries.', 'https://images.unsplash.com/photo-1500534314209-a25ddb2bd429', 17.6868, 83.2185, 'plain'),
+(1, 'Tirupati', 'Tirupati is famous for the Sri Venkateswara Temple, one of the most visited pilgrimage sites in India.', 'https://images.unsplash.com/photo-1548013146-72479768bada', 13.6288, 79.4192, 'hill'),
 -- Assam
-(3, 'Guwahati', 'Guwahati is the largest city in Assam and gateway to Northeast India. It is known for Kamakhya Temple.', 'https://images.unsplash.com/photo-1593693397690-362cb9666fc2'),
-(3, 'Kaziranga', 'Kaziranga is famous for the Kaziranga National Park, home to the one-horned rhinoceros.', 'https://images.unsplash.com/photo-1593693397690-362cb9666fc2'),
+(3, 'Guwahati', 'Guwahati is the largest city in Assam and gateway to Northeast India. It is known for Kamakhya Temple.', 'https://images.unsplash.com/photo-1593693397690-362cb9666fc2', 26.1445, 91.7362, 'plain'),
+(3, 'Kaziranga', 'Kaziranga is famous for the Kaziranga National Park, home to the one-horned rhinoceros.', 'https://images.unsplash.com/photo-1593693397690-362cb9666fc2', 26.5739, 93.1715, 'plain'),
 -- Goa
-(6, 'North Goa', 'North Goa is famous for its vibrant beaches, nightlife, and water sports activities.', 'https://images.unsplash.com/photo-1500534314209-a25ddb2bd429'),
-(6, 'South Goa', 'South Goa offers serene beaches, heritage sites, and a more relaxed atmosphere.', 'https://images.unsplash.com/photo-1500534314209-a25ddb2bd429'),
+(6, 'North Goa', 'North Goa is famous for its vibrant beaches, nightlife, and water sports activities.', 'https://images.unsplash.com/photo-1500534314209-a25ddb2bd429', 15.5517, 73.7554, 'plain'),
+(6, 'South Goa', 'South Goa offers serene beaches, heritage sites, and a more relaxed atmosphere.', 'https://images.unsplash.com/photo-1500534314209-a25ddb2bd429', 15.2993, 74.1240, 'plain'),
 -- Karnataka
-(11, 'Bangalore', 'Bangalore is the IT capital of India, known for its pleasant weather, parks, and modern infrastructure.', 'https://images.unsplash.com/photo-1501785888041-af3ef285b470'),
-(11, 'Mysore', 'Mysore is known for its royal heritage, palaces, and the famous Dasara festival.', 'https://images.unsplash.com/photo-1548013146-72479768bada'),
+(11, 'Bangalore', 'Bangalore is the IT capital of India, known for its pleasant weather, parks, and modern infrastructure.', 'https://images.unsplash.com/photo-1501785888041-af3ef285b470', 12.9716, 77.5946, 'plain'),
+(11, 'Mysore', 'Mysore is known for its royal heritage, palaces, and the famous Dasara festival.', 'https://images.unsplash.com/photo-1548013146-72479768bada', 12.2958, 76.6394, 'plain'),
 -- Kerala
-(12, 'Kochi', 'Kochi is a port city known for its backwaters, Chinese fishing nets, and colonial architecture.', 'https://images.unsplash.com/photo-1500534314209-a25ddb2bd429'),
-(12, 'Munnar', 'Munnar is a hill station famous for its tea plantations, scenic beauty, and cool climate.', 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee'),
+(12, 'Kochi', 'Kochi is a port city known for its backwaters, Chinese fishing nets, and colonial architecture.', 'https://images.unsplash.com/photo-1500534314209-a25ddb2bd429', 9.9312, 76.2673, 'plain'),
+(12, 'Munnar', 'Munnar is a hill station famous for its tea plantations, scenic beauty, and cool climate.', 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee', 10.0889, 77.0595, 'hill'),
 -- Maharashtra
-(14, 'Mumbai', 'Mumbai is the financial capital of India, known for Bollywood, Gateway of India, and vibrant culture.', 'https://images.unsplash.com/photo-1501785888041-af3ef285b470'),
-(14, 'Pune', 'Pune is known as the cultural capital of Maharashtra, famous for its educational institutions and historical sites.', 'https://images.unsplash.com/photo-1501785888041-af3ef285b470'),
+(14, 'Mumbai', 'Mumbai is the financial capital of India, known for Bollywood, Gateway of India, and vibrant culture.', 'https://images.unsplash.com/photo-1501785888041-af3ef285b470', 19.0760, 72.8777, 'plain'),
+(14, 'Pune', 'Pune is known as the cultural capital of Maharashtra, famous for its educational institutions and historical sites.', 'https://images.unsplash.com/photo-1501785888041-af3ef285b470', 18.5204, 73.8567, 'plain'),
 -- Odisha
-(19, 'Puri', 'Puri is famous for the Jagannath Temple, beautiful beaches, and is one of the Char Dham pilgrimage sites.', 'https://images.unsplash.com/photo-1548013146-72479768bada'),
-(19, 'Bhubaneswar', 'Bhubaneswar is the capital of Odisha, known as the Temple City with numerous ancient temples.', 'https://images.unsplash.com/photo-1593693397690-362cb9666fc2'),
+(19, 'Puri', 'Puri is famous for the Jagannath Temple, beautiful beaches, and is one of the Char Dham pilgrimage sites.', 'https://images.unsplash.com/photo-1548013146-72479768bada', 19.8135, 85.8312, 'plain'),
+(19, 'Bhubaneswar', 'Bhubaneswar is the capital of Odisha, known as the Temple City with numerous ancient temples.', 'https://images.unsplash.com/photo-1593693397690-362cb9666fc2', 20.2961, 85.8245, 'plain'),
 -- Rajasthan
-(21, 'Jaipur', 'Jaipur, the Pink City, is known for its magnificent palaces, forts, and rich royal heritage.', 'https://images.unsplash.com/photo-1589182373726-e4f658ab50f0'),
-(21, 'Udaipur', 'Udaipur, the City of Lakes, is famous for its beautiful lakes, palaces, and romantic ambiance.', 'https://images.unsplash.com/photo-1589182373726-e4f658ab50f0'),
+(21, 'Jaipur', 'Jaipur, the Pink City, is known for its magnificent palaces, forts, and rich royal heritage.', 'https://images.unsplash.com/photo-1589182373726-e4f658ab50f0', 26.9124, 75.7873, 'plain'),
+(21, 'Udaipur', 'Udaipur, the City of Lakes, is famous for its beautiful lakes, palaces, and romantic ambiance.', 'https://images.unsplash.com/photo-1589182373726-e4f658ab50f0', 24.5854, 73.7125, 'plain'),
 -- Tamil Nadu
-(23, 'Chennai', 'Chennai is the capital of Tamil Nadu, known for its beaches, temples, and classical music.', 'https://images.unsplash.com/photo-1548013146-72479768bada'),
-(23, 'Madurai', 'Madurai is famous for the Meenakshi Amman Temple, one of the most important temples in South India.', 'https://images.unsplash.com/photo-1548013146-72479768bada'),
+(23, 'Chennai', 'Chennai is the capital of Tamil Nadu, known for its beaches, temples, and classical music.', 'https://images.unsplash.com/photo-1548013146-72479768bada', 13.0827, 80.2707, 'plain'),
+(23, 'Madurai', 'Madurai is famous for the Meenakshi Amman Temple, one of the most important temples in South India.', 'https://images.unsplash.com/photo-1548013146-72479768bada', 9.9252, 78.1198, 'plain'),
 -- Uttar Pradesh
-(26, 'Agra', 'Agra is home to the iconic Taj Mahal, one of the Seven Wonders of the World.', 'https://images.unsplash.com/photo-1548013146-72479768bada'),
-(26, 'Varanasi', 'Varanasi is one of the oldest cities in the world, known for its ghats, temples, and spiritual significance.', 'https://images.unsplash.com/photo-1548013146-72479768bada'),
+(26, 'Agra', 'Agra is home to the iconic Taj Mahal, one of the Seven Wonders of the World.', 'https://images.unsplash.com/photo-1548013146-72479768bada', 27.1767, 78.0081, 'plain'),
+(26, 'Varanasi', 'Varanasi is one of the oldest cities in the world, known for its ghats, temples, and spiritual significance.', 'https://images.unsplash.com/photo-1548013146-72479768bada', 25.3176, 82.9739, 'plain'),
 -- West Bengal
-(28, 'Kolkata', 'Kolkata is the cultural capital of India, known for its literature, art, colonial architecture, and delicious food.', 'https://images.unsplash.com/photo-1501785888041-af3ef285b470'),
-(28, 'Darjeeling', 'Darjeeling is a famous hill station known for its tea plantations, toy train, and stunning views of Kanchenjunga.', 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee');
+(28, 'Kolkata', 'Kolkata is the cultural capital of India, known for its literature, art, colonial architecture, and delicious food.', 'https://images.unsplash.com/photo-1501785888041-af3ef285b470', 22.5726, 88.3639, 'plain'),
+(28, 'Darjeeling', 'Darjeeling is a famous hill station known for its tea plantations, toy train, and stunning views of Kanchenjunga.', 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee', 27.0360, 88.2627, 'hill');
 
 -- Insert Activity Types
 INSERT INTO activity_types (name, description, image) VALUES
@@ -273,25 +329,25 @@ INSERT INTO transport_types (name, description, image) VALUES
 ('Helicopter', 'Helicopter tours and transfers for unique aerial views and quick access to remote locations. Experience breathtaking landscapes from above.', 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05');
 
 -- Insert Sample Places
-INSERT INTO places (city_id, name, description, image, security_info, night_travel_safety, digital_amenities) VALUES
+INSERT INTO places (city_id, name, description, image, security_info, night_travel_safety, safety_level, religion_restrictions, best_time_of_day, avg_visit_time_hours, crowd_level, avg_waiting_time_minutes, weather_dependency, monsoon_risk, sudden_closure_risk, child_friendly, senior_friendly, physical_effort, nearest_hospital_distance_km, police_response_level, digital_amenities, mobile_network, internet_availability, experience_score, priority_level) VALUES
 -- Mumbai Places
-(9, 'Gateway of India', 'The Gateway of India is an arch monument built during the 20th century in Mumbai. It is one of the most iconic landmarks of the city and a popular tourist attraction.', 'https://images.unsplash.com/photo-1501785888041-af3ef285b470', 'Generally safe area with police presence. Be cautious of pickpockets in crowded areas. Keep valuables secure.', 'Moderately safe for night travel. Well-lit area with security personnel. Avoid isolated areas after midnight.', 'Free WiFi available nearby. Good mobile network coverage. Digital payment accepted at most vendors.'),
-(9, 'Marine Drive', 'Marine Drive is a 3.6-kilometer-long boulevard in South Mumbai. It is also known as the Queen''s Necklace due to its curved shape and street lights that resemble a string of pearls.', 'https://images.unsplash.com/photo-1501785888041-af3ef285b470', 'Safe area with regular police patrolling. Popular among locals and tourists. Keep belongings close.', 'Safe for night travel. Well-lit promenade. Many people visit during evenings. Exercise caution after 11 PM.', 'Good mobile network. Some cafes offer WiFi. Digital payment widely accepted.'),
+(9, 'Gateway of India', 'The Gateway of India is an arch monument built during the 20th century in Mumbai. It is one of the most iconic landmarks of the city and a popular tourist attraction.', 'https://images.unsplash.com/photo-1501785888041-af3ef285b470', 'Generally safe area with police presence. Be cautious of pickpockets in crowded areas. Keep valuables secure.', 'Moderately safe for night travel. Well-lit area with security personnel. Avoid isolated areas after midnight.', 'High', 'No Restriction', 'anytime', 1.5, 'high', 15, 'low', 'safe', 'rare', 'yes', 'yes', 'low', 2.5, 'good', 'Free WiFi available nearby. Good mobile network coverage. Digital payment accepted at most vendors.', 'good', 'yes', 5, 5),
+(9, 'Marine Drive', 'Marine Drive is a 3.6-kilometer-long boulevard in South Mumbai. It is also known as the Queen''s Necklace due to its curved shape and street lights that resemble a string of pearls.', 'https://images.unsplash.com/photo-1501785888041-af3ef285b470', 'Safe area with regular police patrolling. Popular among locals and tourists. Keep belongings close.', 'Safe for night travel. Well-lit promenade. Many people visit during evenings. Exercise caution after 11 PM.', 'High', 'No Restriction', 'evening', 2.0, 'medium', 5, 'low', 'safe', 'rare', 'yes', 'yes', 'low', 3.0, 'good', 'Good mobile network. Some cafes offer WiFi. Digital payment widely accepted.', 'good', 'yes', 4, 4),
 -- Agra Places
-(19, 'Taj Mahal', 'The Taj Mahal is an ivory-white marble mausoleum on the right bank of the Yamuna river in Agra. It was commissioned in 1632 by the Mughal emperor Shah Jahan to house the tomb of his favorite wife, Mumtaz Mahal.', 'https://images.unsplash.com/photo-1548013146-72479768bada', 'Highly secure area with strict security checks. Bags and certain items not allowed inside. Follow security guidelines.', 'Not accessible at night. Open from sunrise to sunset. Night viewing available on full moon nights with special tickets.', 'Limited WiFi. Good mobile network. Online ticket booking available. Digital payment accepted.'),
-(19, 'Agra Fort', 'Agra Fort is a historical fort in the city of Agra in India. It was the main residence of the emperors of the Mughal Dynasty until 1638, when the capital was shifted from Agra to Delhi.', 'https://images.unsplash.com/photo-1548013146-72479768bada', 'Secure monument with security personnel. Follow rules and regulations. Keep valuables safe.', 'Open during daylight hours only. Not recommended for night visits.', 'Good mobile network coverage. Online ticket booking available.'),
+(19, 'Taj Mahal', 'The Taj Mahal is an ivory-white marble mausoleum on the right bank of the Yamuna river in Agra. It was commissioned in 1632 by the Mughal emperor Shah Jahan to house the tomb of his favorite wife, Mumtaz Mahal.', 'https://images.unsplash.com/photo-1548013146-72479768bada', 'Highly secure area with strict security checks. Bags and certain items not allowed inside. Follow security guidelines.', 'Not accessible at night. Open from sunrise to sunset. Night viewing available on full moon nights with special tickets.', 'High', 'No Restriction', 'morning', 3.0, 'high', 60, 'low', 'safe', 'rare', 'yes', 'yes', 'low', 5.0, 'good', 'Limited WiFi. Good mobile network. Online ticket booking available. Digital payment accepted.', 'good', 'limited', 5, 5),
+(19, 'Agra Fort', 'Agra Fort is a historical fort in the city of Agra in India. It was the main residence of the emperors of the Mughal Dynasty until 1638, when the capital was shifted from Agra to Delhi.', 'https://images.unsplash.com/photo-1548013146-72479768bada', 'Secure monument with security personnel. Follow rules and regulations. Keep valuables safe.', 'Open during daylight hours only. Not recommended for night visits.', 'High', 'No Restriction', 'morning', 2.5, 'medium', 30, 'low', 'safe', 'rare', 'yes', 'yes', 'medium', 4.5, 'good', 'Good mobile network coverage. Online ticket booking available.', 'good', 'yes', 4, 4),
 -- Jaipur Places
-(13, 'Hawa Mahal', 'Hawa Mahal, also known as the Palace of Winds, is a five-story building in Jaipur. It was built in 1799 by Maharaja Sawai Pratap Singh and is one of the most iconic landmarks of Jaipur.', 'https://images.unsplash.com/photo-1589182373726-e4f658ab50f0', 'Safe tourist area with security. Be cautious of street vendors and touts. Keep belongings secure.', 'Moderately safe. Well-lit main area. Avoid isolated streets after dark.', 'Good mobile network. Some shops offer WiFi. Digital payment accepted.'),
-(13, 'Amber Fort', 'Amber Fort is a massive fort located in Amer, about 11 kilometers from Jaipur. It is one of the principal tourist attractions in the Jaipur area, located high on a hill.', 'https://images.unsplash.com/photo-1589182373726-e4f658ab50f0', 'Secure fort area with security personnel. Follow safety guidelines. Keep valuables safe.', 'Open during daylight hours. Not recommended for night visits. Limited lighting in some areas.', 'Good mobile network. Online ticket booking available. Digital payment accepted.'),
+(13, 'Hawa Mahal', 'Hawa Mahal, also known as the Palace of Winds, is a five-story building in Jaipur. It was built in 1799 by Maharaja Sawai Pratap Singh and is one of the most iconic landmarks of Jaipur.', 'https://images.unsplash.com/photo-1589182373726-e4f658ab50f0', 'Safe tourist area with security. Be cautious of street vendors and touts. Keep belongings secure.', 'Moderately safe. Well-lit main area. Avoid isolated streets after dark.', 'Medium', 'No Restriction', 'morning', 1.5, 'medium', 20, 'low', 'safe', 'rare', 'yes', 'no', 'medium', 2.0, 'good', 'Good mobile network. Some shops offer WiFi. Digital payment accepted.', 'good', 'yes', 4, 3),
+(13, 'Amber Fort', 'Amber Fort is a massive fort located in Amer, about 11 kilometers from Jaipur. It is one of the principal tourist attractions in the Jaipur area, located high on a hill.', 'https://images.unsplash.com/photo-1589182373726-e4f658ab50f0', 'Secure fort area with security personnel. Follow safety guidelines. Keep valuables safe.', 'Open during daylight hours. Not recommended for night visits. Limited lighting in some areas.', 'Medium', 'No Restriction', 'morning', 3.0, 'medium', 45, 'low', 'safe', 'rare', 'yes', 'no', 'high', 6.0, 'good', 'Good mobile network. Online ticket booking available. Digital payment accepted.', 'good', 'yes', 5, 5),
 -- Goa Places
-(5, 'Baga Beach', 'Baga Beach is one of the most popular beaches in North Goa, known for its water sports, nightlife, and vibrant atmosphere. It offers a perfect blend of relaxation and adventure.', 'https://images.unsplash.com/photo-1500534314209-a25ddb2bd429', 'Generally safe beach area. Be cautious in water. Follow lifeguard instructions. Keep valuables in lockers.', 'Moderately safe. Well-lit beach shacks. Many tourists visit at night. Exercise caution on isolated beach areas.', 'Good mobile network. Many beach shacks offer WiFi. Digital payment widely accepted.'),
-(5, 'Calangute Beach', 'Calangute Beach is the largest and most commercialized beach in North Goa. It is known for its golden sand, water sports, and numerous restaurants and shops.', 'https://images.unsplash.com/photo-1500534314209-a25ddb2bd429', 'Safe tourist area. Be cautious in water. Follow safety guidelines for water sports.', 'Safe for evening visits. Well-lit area with many restaurants and shops open late.', 'Excellent mobile network. Many establishments offer WiFi. Digital payment widely accepted.'),
+(5, 'Baga Beach', 'Baga Beach is one of the most popular beaches in North Goa, known for its water sports, nightlife, and vibrant atmosphere. It offers a perfect blend of relaxation and adventure.', 'https://images.unsplash.com/photo-1500534314209-a25ddb2bd429', 'Generally safe beach area. Be cautious in water. Follow lifeguard instructions. Keep valuables in lockers.', 'Moderately safe. Well-lit beach shacks. Many tourists visit at night. Exercise caution on isolated beach areas.', 'Medium', 'No Restriction', 'anytime', 4.0, 'high', 10, 'medium', 'risky', 'occasional', 'yes', 'yes', 'low', 8.0, 'medium', 'Good mobile network. Many beach shacks offer WiFi. Digital payment widely accepted.', 'good', 'yes', 4, 4),
+(5, 'Calangute Beach', 'Calangute Beach is the largest and most commercialized beach in North Goa. It is known for its golden sand, water sports, and numerous restaurants and shops.', 'https://images.unsplash.com/photo-1500534314209-a25ddb2bd429', 'Safe tourist area. Be cautious in water. Follow safety guidelines for water sports.', 'Safe for evening visits. Well-lit area with many restaurants and shops open late.', 'High', 'No Restriction', 'anytime', 4.0, 'high', 15, 'medium', 'risky', 'occasional', 'yes', 'yes', 'low', 7.5, 'good', 'Excellent mobile network. Many establishments offer WiFi. Digital payment widely accepted.', 'good', 'yes', 4, 4),
 -- Kerala Places
-(7, 'Backwaters of Alleppey', 'The backwaters of Alleppey are a network of canals, rivers, and lakes that form a unique ecosystem. Houseboat cruises are the most popular way to experience this natural wonder.', 'https://images.unsplash.com/photo-1500534314209-a25ddb2bd429', 'Safe waterway area. Follow safety instructions on houseboats. Wear life jackets when required.', 'Limited night travel on backwaters. Most houseboats dock at night. Safe when on anchored houseboats.', 'Limited mobile network in some areas. Some houseboats offer WiFi. Digital payment accepted for bookings.'),
-(8, 'Munnar Tea Gardens', 'Munnar is famous for its sprawling tea plantations that cover the hillsides. The tea gardens offer breathtaking views and opportunities to learn about tea processing.', 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee', 'Safe plantation areas. Follow guided tour instructions. Be cautious on steep paths.', 'Not recommended for night visits. Tea gardens close at sunset. Limited lighting in plantation areas.', 'Good mobile network in main areas. Some resorts offer WiFi. Digital payment accepted.'),
+(7, 'Backwaters of Alleppey', 'The backwaters of Alleppey are a network of canals, rivers, and lakes that form a unique ecosystem. Houseboat cruises are the most popular way to experience this natural wonder.', 'https://images.unsplash.com/photo-1500534314209-a25ddb2bd429', 'Safe waterway area. Follow safety instructions on houseboats. Wear life jackets when required.', 'Limited night travel on backwaters. Most houseboats dock at night. Safe when on anchored houseboats.', 'High', 'No Restriction', 'morning', 24.0, 'low', 0, 'high', 'risky', 'occasional', 'yes', 'yes', 'low', 12.0, 'medium', 'Limited mobile network in some areas. Some houseboats offer WiFi. Digital payment accepted for bookings.', 'weak', 'limited', 5, 5),
+(8, 'Munnar Tea Gardens', 'Munnar is famous for its sprawling tea plantations that cover the hillsides. The tea gardens offer breathtaking views and opportunities to learn about tea processing.', 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee', 'Safe plantation areas. Follow guided tour instructions. Be cautious on steep paths.', 'Not recommended for night visits. Tea gardens close at sunset. Limited lighting in plantation areas.', 'Medium', 'No Restriction', 'morning', 3.0, 'low', 10, 'medium', 'risky', 'rare', 'yes', 'no', 'medium', 15.0, 'medium', 'Good mobile network in main areas. Some resorts offer WiFi. Digital payment accepted.', 'good', 'limited', 4, 4),
 -- Darjeeling Places
-(20, 'Tiger Hill', 'Tiger Hill is famous for its spectacular sunrise views over Mount Kanchenjunga and Mount Everest. It is one of the highest points in Darjeeling and a popular tourist destination.', 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee', 'Safe viewing area. Be cautious on steep paths, especially in early morning darkness. Follow guide instructions.', 'Early morning visits for sunrise are safe with proper lighting. Avoid isolated areas in complete darkness.', 'Good mobile network at viewing point. Limited WiFi. Digital payment accepted for entry tickets.'),
-(20, 'Darjeeling Himalayan Railway', 'The Darjeeling Himalayan Railway, also known as the Toy Train, is a narrow-gauge railway that runs between New Jalpaiguri and Darjeeling. It is a UNESCO World Heritage Site.', 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee', 'Safe railway journey. Follow safety instructions. Keep belongings secure during travel.', 'Limited night services. Most trains operate during daylight hours. Safe when traveling in groups.', 'Good mobile network along most routes. Online ticket booking available. Digital payment accepted.');
+(20, 'Tiger Hill', 'Tiger Hill is famous for its spectacular sunrise views over Mount Kanchenjunga and Mount Everest. It is one of the highest points in Darjeeling and a popular tourist destination.', 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee', 'Safe viewing area. Be cautious on steep paths, especially in early morning darkness. Follow guide instructions.', 'Early morning visits for sunrise are safe with proper lighting. Avoid isolated areas in complete darkness.', 'Medium', 'No Restriction', 'morning', 2.0, 'low', 30, 'high', 'closed', 'frequent', 'yes', 'no', 'medium', 18.0, 'medium', 'Good mobile network at viewing point. Limited WiFi. Digital payment accepted for entry tickets.', 'weak', 'limited', 5, 5),
+(20, 'Darjeeling Himalayan Railway', 'The Darjeeling Himalayan Railway, also known as the Toy Train, is a narrow-gauge railway that runs between New Jalpaiguri and Darjeeling. It is a UNESCO World Heritage Site.', 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee', 'Safe railway journey. Follow safety instructions. Keep belongings secure during travel.', 'Limited night services. Most trains operate during daylight hours. Safe when traveling in groups.', 'High', 'No Restriction', 'morning', 7.0, 'medium', 20, 'medium', 'risky', 'occasional', 'yes', 'yes', 'low', 10.0, 'good', 'Good mobile network along most routes. Online ticket booking available. Digital payment accepted.', 'good', 'yes', 5, 4);
 
 -- Insert Place Hotel Types (Sample associations)
 INSERT INTO place_hotel_types (place_id, hotel_type_id) VALUES
@@ -385,4 +441,15 @@ INSERT INTO place_activities (place_id, activity_type_id, safety_info, safety_le
 (11, 8, 'Early morning visits require warm clothing. Be cautious in darkness. Follow guide instructions.', 'High', 'All ages', 'No restriction', 'Respiratory problems in cold weather', '04:00:00', '08:00:00', 'October,November,December,January,February,March,April', '100-300'),
 -- Darjeeling Himalayan Railway - Heritage Walks
 (12, 7, 'Be cautious when boarding trains. Hold handrails. Follow railway safety guidelines.', 'High', 'All ages', 'No restriction', 'Mobility issues, severe balance problems', '08:00:00', '17:00:00', 'March,April,May,June,July,August,September,October,November', '50-200');
+
+-- Planning Rules Table
+CREATE TABLE IF NOT EXISTS planning_rules (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    same_stay_hour_limit INT DEFAULT 4,
+    travel_day_hour_limit INT DEFAULT 7,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+-- Insert default planning rules
+INSERT INTO planning_rules (same_stay_hour_limit, travel_day_hour_limit) VALUES (4, 7);
 

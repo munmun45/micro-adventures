@@ -44,9 +44,40 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $ticket_price = 'Free';
             }
             
+            // Activity Difficulty & Physical Load
+            $difficulty_level = trim($_POST['difficulty_level'] ?? '');
+            $physical_effort = trim($_POST['physical_effort'] ?? '');
+            // Weather & Season Risk
+            $weather_dependency = trim($_POST['weather_dependency'] ?? '');
+            $monsoon_risk = trim($_POST['monsoon_risk'] ?? '');
+            $cancellation_chance = trim($_POST['cancellation_chance'] ?? '');
+            // Safety Gear & Requirements
+            $safety_equipment_required = trim($_POST['safety_equipment_required'] ?? '');
+            $equipment_provided = trim($_POST['equipment_provided'] ?? '');
+            // Supervision & Guide Quality
+            $guide_mandatory = trim($_POST['guide_mandatory'] ?? '');
+            $operator_type = trim($_POST['operator_type'] ?? '');
+            // Time Flexibility & Buffer
+            $buffer_time_minutes = !empty($_POST['buffer_time_minutes']) ? intval($_POST['buffer_time_minutes']) : null;
+            $reporting_time = trim($_POST['reporting_time'] ?? '');
+            // Crowd & Waiting Impact
+            $crowd_level = trim($_POST['crowd_level'] ?? '');
+            $avg_waiting_time_minutes = !empty($_POST['avg_waiting_time_minutes']) ? intval($_POST['avg_waiting_time_minutes']) : null;
+            // Age & Body Limitation
+            $min_age = !empty($_POST['min_age']) ? intval($_POST['min_age']) : null;
+            $max_age = !empty($_POST['max_age']) ? intval($_POST['max_age']) : null;
+            // Medical Emergency Access
+            $nearest_medical_distance_km = !empty($_POST['nearest_medical_distance_km']) ? floatval($_POST['nearest_medical_distance_km']) : null;
+            $emergency_support_level = trim($_POST['emergency_support_level'] ?? '');
+            // Activity Stop Conditions
+            $stop_conditions = trim($_POST['stop_conditions'] ?? '');
+            // Family & Solo Travel Suitability
+            $family_friendly = trim($_POST['family_friendly'] ?? '');
+            $solo_traveler_safe = trim($_POST['solo_traveler_safe'] ?? '');
+            
             if ($activity_type_id > 0) {
-                $stmt = $conn->prepare("INSERT INTO place_activities (place_id, activity_type_id, safety_info, safety_level, age_restriction, gender_restriction, medical_restrictions, open_time, close_time, available_months, ticket_price) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-                $stmt->bind_param("iisssssssss", $place_id, $activity_type_id, $safety_info, $safety_level, $age_restriction, $gender_restriction, $medical_restrictions, $open_time, $close_time, $available_months, $ticket_price);
+                $stmt = $conn->prepare("INSERT INTO place_activities (place_id, activity_type_id, safety_info, safety_level, age_restriction, gender_restriction, medical_restrictions, open_time, close_time, available_months, ticket_price, difficulty_level, physical_effort, weather_dependency, monsoon_risk, cancellation_chance, safety_equipment_required, equipment_provided, guide_mandatory, operator_type, buffer_time_minutes, reporting_time, crowd_level, avg_waiting_time_minutes, min_age, max_age, nearest_medical_distance_km, emergency_support_level, stop_conditions, family_friendly, solo_traveler_safe) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                $stmt->bind_param("iisssssssssssssssssssisissidssss", $place_id, $activity_type_id, $safety_info, $safety_level, $age_restriction, $gender_restriction, $medical_restrictions, $open_time, $close_time, $available_months, $ticket_price, $difficulty_level, $physical_effort, $weather_dependency, $monsoon_risk, $cancellation_chance, $safety_equipment_required, $equipment_provided, $guide_mandatory, $operator_type, $buffer_time_minutes, $reporting_time, $crowd_level, $avg_waiting_time_minutes, $min_age, $max_age, $nearest_medical_distance_km, $emergency_support_level, $stop_conditions, $family_friendly, $solo_traveler_safe);
                 if ($stmt->execute()) {
                     $message = "Activity added successfully!";
                     $message_type = "success";
@@ -74,9 +105,40 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $ticket_price = 'Free';
             }
             
+            // Activity Difficulty & Physical Load
+            $difficulty_level = trim($_POST['difficulty_level'] ?? '');
+            $physical_effort = trim($_POST['physical_effort'] ?? '');
+            // Weather & Season Risk
+            $weather_dependency = trim($_POST['weather_dependency'] ?? '');
+            $monsoon_risk = trim($_POST['monsoon_risk'] ?? '');
+            $cancellation_chance = trim($_POST['cancellation_chance'] ?? '');
+            // Safety Gear & Requirements
+            $safety_equipment_required = trim($_POST['safety_equipment_required'] ?? '');
+            $equipment_provided = trim($_POST['equipment_provided'] ?? '');
+            // Supervision & Guide Quality
+            $guide_mandatory = trim($_POST['guide_mandatory'] ?? '');
+            $operator_type = trim($_POST['operator_type'] ?? '');
+            // Time Flexibility & Buffer
+            $buffer_time_minutes = !empty($_POST['buffer_time_minutes']) ? intval($_POST['buffer_time_minutes']) : null;
+            $reporting_time = trim($_POST['reporting_time'] ?? '');
+            // Crowd & Waiting Impact
+            $crowd_level = trim($_POST['crowd_level'] ?? '');
+            $avg_waiting_time_minutes = !empty($_POST['avg_waiting_time_minutes']) ? intval($_POST['avg_waiting_time_minutes']) : null;
+            // Age & Body Limitation
+            $min_age = !empty($_POST['min_age']) ? intval($_POST['min_age']) : null;
+            $max_age = !empty($_POST['max_age']) ? intval($_POST['max_age']) : null;
+            // Medical Emergency Access
+            $nearest_medical_distance_km = !empty($_POST['nearest_medical_distance_km']) ? floatval($_POST['nearest_medical_distance_km']) : null;
+            $emergency_support_level = trim($_POST['emergency_support_level'] ?? '');
+            // Activity Stop Conditions
+            $stop_conditions = trim($_POST['stop_conditions'] ?? '');
+            // Family & Solo Travel Suitability
+            $family_friendly = trim($_POST['family_friendly'] ?? '');
+            $solo_traveler_safe = trim($_POST['solo_traveler_safe'] ?? '');
+            
             if ($id > 0) {
-                $stmt = $conn->prepare("UPDATE place_activities SET safety_info = ?, safety_level = ?, age_restriction = ?, gender_restriction = ?, medical_restrictions = ?, open_time = ?, close_time = ?, available_months = ?, ticket_price = ? WHERE id = ?");
-                $stmt->bind_param("sssssssssi", $safety_info, $safety_level, $age_restriction, $gender_restriction, $medical_restrictions, $open_time, $close_time, $available_months, $ticket_price, $id);
+                $stmt = $conn->prepare("UPDATE place_activities SET safety_info = ?, safety_level = ?, age_restriction = ?, gender_restriction = ?, medical_restrictions = ?, open_time = ?, close_time = ?, available_months = ?, ticket_price = ?, difficulty_level = ?, physical_effort = ?, weather_dependency = ?, monsoon_risk = ?, cancellation_chance = ?, safety_equipment_required = ?, equipment_provided = ?, guide_mandatory = ?, operator_type = ?, buffer_time_minutes = ?, reporting_time = ?, crowd_level = ?, avg_waiting_time_minutes = ?, min_age = ?, max_age = ?, nearest_medical_distance_km = ?, emergency_support_level = ?, stop_conditions = ?, family_friendly = ?, solo_traveler_safe = ? WHERE id = ?");
+                $stmt->bind_param("ssssssssssssssssssssisissidssssi", $safety_info, $safety_level, $age_restriction, $gender_restriction, $medical_restrictions, $open_time, $close_time, $available_months, $ticket_price, $difficulty_level, $physical_effort, $weather_dependency, $monsoon_risk, $cancellation_chance, $safety_equipment_required, $equipment_provided, $guide_mandatory, $operator_type, $buffer_time_minutes, $reporting_time, $crowd_level, $avg_waiting_time_minutes, $min_age, $max_age, $nearest_medical_distance_km, $emergency_support_level, $stop_conditions, $family_friendly, $solo_traveler_safe, $id);
                 if ($stmt->execute()) {
                     $message = "Activity updated successfully!";
                     $message_type = "success";
@@ -240,7 +302,7 @@ $admin = getAdminInfo();
                                     <td><?php echo htmlspecialchars($activity['gender_restriction'] ?? '-'); ?></td>
                                     <td>
                                         <div class="action-buttons">
-                                            <button type="button" class="btn-icon btn-edit" title="Edit" onclick="openEditModal(<?php echo $activity['id']; ?>, '<?php echo htmlspecialchars(addslashes($activity['activity_name'])); ?>', '<?php echo htmlspecialchars(addslashes($activity['safety_info'] ?? '')); ?>', '<?php echo htmlspecialchars(addslashes($activity['safety_level'] ?? 'Medium')); ?>', '<?php echo htmlspecialchars(addslashes($activity['open_time'] ?? '')); ?>', '<?php echo htmlspecialchars(addslashes($activity['close_time'] ?? '')); ?>', '<?php echo htmlspecialchars(addslashes($activity['available_months'] ?? '')); ?>', '<?php echo htmlspecialchars(addslashes($activity['ticket_price'] ?? 'Free')); ?>', '<?php echo htmlspecialchars(addslashes($activity['age_restriction'] ?? '')); ?>', '<?php echo htmlspecialchars(addslashes($activity['gender_restriction'] ?? '')); ?>', '<?php echo htmlspecialchars(addslashes($activity['medical_restrictions'] ?? '')); ?>')">
+                                            <button type="button" class="btn-icon btn-edit" title="Edit" onclick="openEditModal(<?php echo htmlspecialchars(json_encode($activity)); ?>)">
                                                 <i class="bi bi-pencil"></i>
                                             </button>
                                             <button type="button" class="btn-icon btn-info" title="View Ticket Details" onclick="openTicketModal(<?php echo $activity['id']; ?>, '<?php echo htmlspecialchars(addslashes($activity['activity_name'])); ?>', '<?php echo htmlspecialchars(addslashes($activity['ticket_price'] ?? 'Free')); ?>', '<?php echo htmlspecialchars(addslashes($activity['open_time'] ?? '')); ?>', '<?php echo htmlspecialchars(addslashes($activity['close_time'] ?? '')); ?>', '<?php echo htmlspecialchars(addslashes($activity['available_months'] ?? '')); ?>', '<?php echo htmlspecialchars(addslashes($activity['age_restriction'] ?? '')); ?>', '<?php echo htmlspecialchars(addslashes($activity['gender_restriction'] ?? '')); ?>', '<?php echo htmlspecialchars(addslashes($activity['safety_info'] ?? '')); ?>', '<?php echo htmlspecialchars(addslashes($activity['medical_restrictions'] ?? '')); ?>')">
@@ -367,6 +429,208 @@ $admin = getAdminInfo();
                                 </button>
                             </div>
                         </div>
+                        
+                        <!-- Activity Difficulty & Physical Load -->
+                        <hr class="my-3">
+                        <h6 class="mb-3"><i class="bi bi-speedometer2"></i> Activity Difficulty & Physical Load</h6>
+                        <div class="row g-2">
+                            <div class="col-md-6 mb-2">
+                                <label for="activityDifficultyLevel" class="form-label small fw-bold">Difficulty Level</label>
+                                <select class="form-select form-select-sm" id="activityDifficultyLevel" name="difficulty_level">
+                                    <option value="">Select</option>
+                                    <option value="easy">Easy</option>
+                                    <option value="moderate">Moderate</option>
+                                    <option value="hard">Hard</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-2">
+                                <label for="activityPhysicalEffort" class="form-label small fw-bold">Physical Effort</label>
+                                <select class="form-select form-select-sm" id="activityPhysicalEffort" name="physical_effort">
+                                    <option value="">Select</option>
+                                    <option value="low">Low</option>
+                                    <option value="medium">Medium</option>
+                                    <option value="high">High</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <!-- Weather & Season Risk -->
+                        <hr class="my-3">
+                        <h6 class="mb-3"><i class="bi bi-cloud-rain"></i> Weather & Season Risk</h6>
+                        <div class="row g-2">
+                            <div class="col-md-4 mb-2">
+                                <label for="activityWeatherDependency" class="form-label small fw-bold">Weather Dependency</label>
+                                <select class="form-select form-select-sm" id="activityWeatherDependency" name="weather_dependency">
+                                    <option value="">Select</option>
+                                    <option value="low">Low</option>
+                                    <option value="medium">Medium</option>
+                                    <option value="high">High</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4 mb-2">
+                                <label for="activityMonsoonRisk" class="form-label small fw-bold">Monsoon Risk</label>
+                                <select class="form-select form-select-sm" id="activityMonsoonRisk" name="monsoon_risk">
+                                    <option value="">Select</option>
+                                    <option value="safe">Safe</option>
+                                    <option value="risky">Risky</option>
+                                    <option value="closed">Closed</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4 mb-2">
+                                <label for="activityCancellationChance" class="form-label small fw-bold">Cancellation Chance</label>
+                                <select class="form-select form-select-sm" id="activityCancellationChance" name="cancellation_chance">
+                                    <option value="">Select</option>
+                                    <option value="low">Low</option>
+                                    <option value="medium">Medium</option>
+                                    <option value="high">High</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <!-- Safety Gear & Requirements -->
+                        <hr class="my-3">
+                        <h6 class="mb-3"><i class="bi bi-shield-check"></i> Safety Gear & Requirements</h6>
+                        <div class="row g-2">
+                            <div class="col-md-6 mb-2">
+                                <label for="activitySafetyEquipmentRequired" class="form-label small fw-bold">Safety Equipment Required</label>
+                                <select class="form-select form-select-sm" id="activitySafetyEquipmentRequired" name="safety_equipment_required">
+                                    <option value="">Select</option>
+                                    <option value="yes">Yes</option>
+                                    <option value="no">No</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-2">
+                                <label for="activityEquipmentProvided" class="form-label small fw-bold">Equipment Provided</label>
+                                <select class="form-select form-select-sm" id="activityEquipmentProvided" name="equipment_provided">
+                                    <option value="">Select</option>
+                                    <option value="yes">Yes</option>
+                                    <option value="partial">Partial</option>
+                                    <option value="no">No</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <!-- Supervision & Guide Quality -->
+                        <hr class="my-3">
+                        <h6 class="mb-3"><i class="bi bi-person-badge"></i> Supervision & Guide Quality</h6>
+                        <div class="row g-2">
+                            <div class="col-md-6 mb-2">
+                                <label for="activityGuideMandatory" class="form-label small fw-bold">Guide Mandatory</label>
+                                <select class="form-select form-select-sm" id="activityGuideMandatory" name="guide_mandatory">
+                                    <option value="">Select</option>
+                                    <option value="yes">Yes</option>
+                                    <option value="no">No</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-2">
+                                <label for="activityOperatorType" class="form-label small fw-bold">Operator Type</label>
+                                <select class="form-select form-select-sm" id="activityOperatorType" name="operator_type">
+                                    <option value="">Select</option>
+                                    <option value="government">Government</option>
+                                    <option value="private">Private</option>
+                                    <option value="local">Local</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <!-- Time Flexibility & Buffer -->
+                        <hr class="my-3">
+                        <h6 class="mb-3"><i class="bi bi-clock-history"></i> Time Flexibility & Buffer</h6>
+                        <div class="row g-2">
+                            <div class="col-md-6 mb-2">
+                                <label for="activityBufferTime" class="form-label small fw-bold">Buffer Time (Minutes)</label>
+                                <input type="number" class="form-control form-control-sm" id="activityBufferTime" name="buffer_time_minutes" placeholder="e.g., 15, 30">
+                            </div>
+                            <div class="col-md-6 mb-2">
+                                <label for="activityReportingTime" class="form-label small fw-bold">Reporting Time</label>
+                                <input type="time" class="form-control form-control-sm" id="activityReportingTime" name="reporting_time">
+                            </div>
+                        </div>
+                        
+                        <!-- Crowd & Waiting Impact -->
+                        <hr class="my-3">
+                        <h6 class="mb-3"><i class="bi bi-people"></i> Crowd & Waiting Impact</h6>
+                        <div class="row g-2">
+                            <div class="col-md-6 mb-2">
+                                <label for="activityCrowdLevel" class="form-label small fw-bold">Crowd Level</label>
+                                <select class="form-select form-select-sm" id="activityCrowdLevel" name="crowd_level">
+                                    <option value="">Select</option>
+                                    <option value="low">Low</option>
+                                    <option value="medium">Medium</option>
+                                    <option value="high">High</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-2">
+                                <label for="activityWaitingTime" class="form-label small fw-bold">Avg Waiting Time (Minutes)</label>
+                                <input type="number" class="form-control form-control-sm" id="activityWaitingTime" name="avg_waiting_time_minutes" placeholder="e.g., 20, 45">
+                            </div>
+                        </div>
+                        
+                        <!-- Age & Body Limitation (More Precise) -->
+                        <hr class="my-3">
+                        <h6 class="mb-3"><i class="bi bi-person"></i> Age & Body Limitation (More Precise)</h6>
+                        <div class="row g-2">
+                            <div class="col-md-6 mb-2">
+                                <label for="activityMinAge" class="form-label small fw-bold">Minimum Age</label>
+                                <input type="number" class="form-control form-control-sm" id="activityMinAge" name="min_age" placeholder="e.g., 12, 18">
+                            </div>
+                            <div class="col-md-6 mb-2">
+                                <label for="activityMaxAge" class="form-label small fw-bold">Maximum Age</label>
+                                <input type="number" class="form-control form-control-sm" id="activityMaxAge" name="max_age" placeholder="e.g., 60, 80">
+                            </div>
+                        </div>
+                        
+                        <!-- Medical Emergency Access -->
+                        <hr class="my-3">
+                        <h6 class="mb-3"><i class="bi bi-hospital"></i> Medical Emergency Access</h6>
+                        <div class="row g-2">
+                            <div class="col-md-6 mb-2">
+                                <label for="activityMedicalDistance" class="form-label small fw-bold">Nearest Medical Distance (km)</label>
+                                <input type="number" step="0.01" class="form-control form-control-sm" id="activityMedicalDistance" name="nearest_medical_distance_km" placeholder="e.g., 5.5, 10.0">
+                            </div>
+                            <div class="col-md-6 mb-2">
+                                <label for="activityEmergencySupport" class="form-label small fw-bold">Emergency Support Level</label>
+                                <select class="form-select form-select-sm" id="activityEmergencySupport" name="emergency_support_level">
+                                    <option value="">Select</option>
+                                    <option value="good">Good</option>
+                                    <option value="medium">Medium</option>
+                                    <option value="poor">Poor</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <!-- Activity Stop Conditions -->
+                        <hr class="my-3">
+                        <h6 class="mb-3"><i class="bi bi-exclamation-triangle"></i> Activity Stop Conditions</h6>
+                        <div class="row g-2">
+                            <div class="col-12 mb-2">
+                                <label for="activityStopConditions" class="form-label small fw-bold">Stop Conditions</label>
+                                <textarea class="form-control form-control-sm" id="activityStopConditions" name="stop_conditions" rows="2" placeholder="e.g., Stop activity during heavy rain or high wind"></textarea>
+                                <small class="form-text text-muted">When should users NOT do this activity?</small>
+                            </div>
+                        </div>
+                        
+                        <!-- Family & Solo Travel Suitability -->
+                        <hr class="my-3">
+                        <h6 class="mb-3"><i class="bi bi-people-fill"></i> Family & Solo Travel Suitability</h6>
+                        <div class="row g-2">
+                            <div class="col-md-6 mb-2">
+                                <label for="activityFamilyFriendly" class="form-label small fw-bold">Family Friendly</label>
+                                <select class="form-select form-select-sm" id="activityFamilyFriendly" name="family_friendly">
+                                    <option value="">Select</option>
+                                    <option value="yes">Yes</option>
+                                    <option value="no">No</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-2">
+                                <label for="activitySoloTravelerSafe" class="form-label small fw-bold">Solo Traveler Safe</label>
+                                <select class="form-select form-select-sm" id="activitySoloTravelerSafe" name="solo_traveler_safe">
+                                    <option value="">Select</option>
+                                    <option value="yes">Yes</option>
+                                    <option value="no">No</option>
+                                </select>
+                            </div>
+                        </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
@@ -462,6 +726,208 @@ $admin = getAdminInfo();
                                 <button type="submit" class="btn btn-primary btn-sm w-100">
                                     <i class="bi bi-check-circle"></i> Update
                                 </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Activity Difficulty & Physical Load -->
+                        <hr class="my-3">
+                        <h6 class="mb-3"><i class="bi bi-speedometer2"></i> Activity Difficulty & Physical Load</h6>
+                        <div class="row g-2">
+                            <div class="col-md-6 mb-2">
+                                <label for="editActivityDifficultyLevel" class="form-label small fw-bold">Difficulty Level</label>
+                                <select class="form-select form-select-sm" id="editActivityDifficultyLevel" name="difficulty_level">
+                                    <option value="">Select</option>
+                                    <option value="easy">Easy</option>
+                                    <option value="moderate">Moderate</option>
+                                    <option value="hard">Hard</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-2">
+                                <label for="editActivityPhysicalEffort" class="form-label small fw-bold">Physical Effort</label>
+                                <select class="form-select form-select-sm" id="editActivityPhysicalEffort" name="physical_effort">
+                                    <option value="">Select</option>
+                                    <option value="low">Low</option>
+                                    <option value="medium">Medium</option>
+                                    <option value="high">High</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <!-- Weather & Season Risk -->
+                        <hr class="my-3">
+                        <h6 class="mb-3"><i class="bi bi-cloud-rain"></i> Weather & Season Risk</h6>
+                        <div class="row g-2">
+                            <div class="col-md-4 mb-2">
+                                <label for="editActivityWeatherDependency" class="form-label small fw-bold">Weather Dependency</label>
+                                <select class="form-select form-select-sm" id="editActivityWeatherDependency" name="weather_dependency">
+                                    <option value="">Select</option>
+                                    <option value="low">Low</option>
+                                    <option value="medium">Medium</option>
+                                    <option value="high">High</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4 mb-2">
+                                <label for="editActivityMonsoonRisk" class="form-label small fw-bold">Monsoon Risk</label>
+                                <select class="form-select form-select-sm" id="editActivityMonsoonRisk" name="monsoon_risk">
+                                    <option value="">Select</option>
+                                    <option value="safe">Safe</option>
+                                    <option value="risky">Risky</option>
+                                    <option value="closed">Closed</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4 mb-2">
+                                <label for="editActivityCancellationChance" class="form-label small fw-bold">Cancellation Chance</label>
+                                <select class="form-select form-select-sm" id="editActivityCancellationChance" name="cancellation_chance">
+                                    <option value="">Select</option>
+                                    <option value="low">Low</option>
+                                    <option value="medium">Medium</option>
+                                    <option value="high">High</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <!-- Safety Gear & Requirements -->
+                        <hr class="my-3">
+                        <h6 class="mb-3"><i class="bi bi-shield-check"></i> Safety Gear & Requirements</h6>
+                        <div class="row g-2">
+                            <div class="col-md-6 mb-2">
+                                <label for="editActivitySafetyEquipmentRequired" class="form-label small fw-bold">Safety Equipment Required</label>
+                                <select class="form-select form-select-sm" id="editActivitySafetyEquipmentRequired" name="safety_equipment_required">
+                                    <option value="">Select</option>
+                                    <option value="yes">Yes</option>
+                                    <option value="no">No</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-2">
+                                <label for="editActivityEquipmentProvided" class="form-label small fw-bold">Equipment Provided</label>
+                                <select class="form-select form-select-sm" id="editActivityEquipmentProvided" name="equipment_provided">
+                                    <option value="">Select</option>
+                                    <option value="yes">Yes</option>
+                                    <option value="partial">Partial</option>
+                                    <option value="no">No</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <!-- Supervision & Guide Quality -->
+                        <hr class="my-3">
+                        <h6 class="mb-3"><i class="bi bi-person-badge"></i> Supervision & Guide Quality</h6>
+                        <div class="row g-2">
+                            <div class="col-md-6 mb-2">
+                                <label for="editActivityGuideMandatory" class="form-label small fw-bold">Guide Mandatory</label>
+                                <select class="form-select form-select-sm" id="editActivityGuideMandatory" name="guide_mandatory">
+                                    <option value="">Select</option>
+                                    <option value="yes">Yes</option>
+                                    <option value="no">No</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-2">
+                                <label for="editActivityOperatorType" class="form-label small fw-bold">Operator Type</label>
+                                <select class="form-select form-select-sm" id="editActivityOperatorType" name="operator_type">
+                                    <option value="">Select</option>
+                                    <option value="government">Government</option>
+                                    <option value="private">Private</option>
+                                    <option value="local">Local</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <!-- Time Flexibility & Buffer -->
+                        <hr class="my-3">
+                        <h6 class="mb-3"><i class="bi bi-clock-history"></i> Time Flexibility & Buffer</h6>
+                        <div class="row g-2">
+                            <div class="col-md-6 mb-2">
+                                <label for="editActivityBufferTime" class="form-label small fw-bold">Buffer Time (Minutes)</label>
+                                <input type="number" class="form-control form-control-sm" id="editActivityBufferTime" name="buffer_time_minutes" placeholder="e.g., 15, 30">
+                            </div>
+                            <div class="col-md-6 mb-2">
+                                <label for="editActivityReportingTime" class="form-label small fw-bold">Reporting Time</label>
+                                <input type="time" class="form-control form-control-sm" id="editActivityReportingTime" name="reporting_time">
+                            </div>
+                        </div>
+                        
+                        <!-- Crowd & Waiting Impact -->
+                        <hr class="my-3">
+                        <h6 class="mb-3"><i class="bi bi-people"></i> Crowd & Waiting Impact</h6>
+                        <div class="row g-2">
+                            <div class="col-md-6 mb-2">
+                                <label for="editActivityCrowdLevel" class="form-label small fw-bold">Crowd Level</label>
+                                <select class="form-select form-select-sm" id="editActivityCrowdLevel" name="crowd_level">
+                                    <option value="">Select</option>
+                                    <option value="low">Low</option>
+                                    <option value="medium">Medium</option>
+                                    <option value="high">High</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-2">
+                                <label for="editActivityWaitingTime" class="form-label small fw-bold">Avg Waiting Time (Minutes)</label>
+                                <input type="number" class="form-control form-control-sm" id="editActivityWaitingTime" name="avg_waiting_time_minutes" placeholder="e.g., 20, 45">
+                            </div>
+                        </div>
+                        
+                        <!-- Age & Body Limitation (More Precise) -->
+                        <hr class="my-3">
+                        <h6 class="mb-3"><i class="bi bi-person"></i> Age & Body Limitation (More Precise)</h6>
+                        <div class="row g-2">
+                            <div class="col-md-6 mb-2">
+                                <label for="editActivityMinAge" class="form-label small fw-bold">Minimum Age</label>
+                                <input type="number" class="form-control form-control-sm" id="editActivityMinAge" name="min_age" placeholder="e.g., 12, 18">
+                            </div>
+                            <div class="col-md-6 mb-2">
+                                <label for="editActivityMaxAge" class="form-label small fw-bold">Maximum Age</label>
+                                <input type="number" class="form-control form-control-sm" id="editActivityMaxAge" name="max_age" placeholder="e.g., 60, 80">
+                            </div>
+                        </div>
+                        
+                        <!-- Medical Emergency Access -->
+                        <hr class="my-3">
+                        <h6 class="mb-3"><i class="bi bi-hospital"></i> Medical Emergency Access</h6>
+                        <div class="row g-2">
+                            <div class="col-md-6 mb-2">
+                                <label for="editActivityMedicalDistance" class="form-label small fw-bold">Nearest Medical Distance (km)</label>
+                                <input type="number" step="0.01" class="form-control form-control-sm" id="editActivityMedicalDistance" name="nearest_medical_distance_km" placeholder="e.g., 5.5, 10.0">
+                            </div>
+                            <div class="col-md-6 mb-2">
+                                <label for="editActivityEmergencySupport" class="form-label small fw-bold">Emergency Support Level</label>
+                                <select class="form-select form-select-sm" id="editActivityEmergencySupport" name="emergency_support_level">
+                                    <option value="">Select</option>
+                                    <option value="good">Good</option>
+                                    <option value="medium">Medium</option>
+                                    <option value="poor">Poor</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <!-- Activity Stop Conditions -->
+                        <hr class="my-3">
+                        <h6 class="mb-3"><i class="bi bi-exclamation-triangle"></i> Activity Stop Conditions</h6>
+                        <div class="row g-2">
+                            <div class="col-12 mb-2">
+                                <label for="editActivityStopConditions" class="form-label small fw-bold">Stop Conditions</label>
+                                <textarea class="form-control form-control-sm" id="editActivityStopConditions" name="stop_conditions" rows="2" placeholder="e.g., Stop activity during heavy rain or high wind"></textarea>
+                                <small class="form-text text-muted">When should users NOT do this activity?</small>
+                            </div>
+                        </div>
+                        
+                        <!-- Family & Solo Travel Suitability -->
+                        <hr class="my-3">
+                        <h6 class="mb-3"><i class="bi bi-people-fill"></i> Family & Solo Travel Suitability</h6>
+                        <div class="row g-2">
+                            <div class="col-md-6 mb-2">
+                                <label for="editActivityFamilyFriendly" class="form-label small fw-bold">Family Friendly</label>
+                                <select class="form-select form-select-sm" id="editActivityFamilyFriendly" name="family_friendly">
+                                    <option value="">Select</option>
+                                    <option value="yes">Yes</option>
+                                    <option value="no">No</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-2">
+                                <label for="editActivitySoloTravelerSafe" class="form-label small fw-bold">Solo Traveler Safe</label>
+                                <select class="form-select form-select-sm" id="editActivitySoloTravelerSafe" name="solo_traveler_safe">
+                                    <option value="">Select</option>
+                                    <option value="yes">Yes</option>
+                                    <option value="no">No</option>
+                                </select>
                             </div>
                         </div>
                     </div>
@@ -571,22 +1037,64 @@ $admin = getAdminInfo();
             });
         });
 
-        function openEditModal(activityId, activityName, safetyInfo, safetyLevel, openTime, closeTime, availableMonths, ticketPrice, ageRestriction, genderRestriction, medicalRestrictions) {
-            document.getElementById('editActivityId').value = activityId;
-            document.getElementById('editActivityTypeName').value = activityName;
-            document.getElementById('editActivitySafetyInfo').value = safetyInfo || '';
-            document.getElementById('editActivitySafetyLevel').value = safetyLevel || 'Medium';
-            document.getElementById('editActivityOpenTime').value = openTime || '';
-            document.getElementById('editActivityCloseTime').value = closeTime || '';
-            document.getElementById('editActivityAge').value = ageRestriction || '';
-            document.getElementById('editActivityGender').value = genderRestriction || '';
-            document.getElementById('editActivityMedicalRestrictions').value = medicalRestrictions || '';
+        function openEditModal(activity) {
+            // Basic fields
+            document.getElementById('editActivityId').value = activity.id || '';
+            document.getElementById('editActivityTypeName').value = activity.activity_name || '';
+            document.getElementById('editActivitySafetyInfo').value = activity.safety_info || '';
+            document.getElementById('editActivitySafetyLevel').value = activity.safety_level || 'Medium';
+            document.getElementById('editActivityOpenTime').value = activity.open_time || '';
+            document.getElementById('editActivityCloseTime').value = activity.close_time || '';
+            document.getElementById('editActivityAge').value = activity.age_restriction || '';
+            document.getElementById('editActivityGender').value = activity.gender_restriction || '';
+            document.getElementById('editActivityMedicalRestrictions').value = activity.medical_restrictions || '';
+            document.getElementById('editTicketPrice').value = activity.ticket_price || 'Free';
+            
+            // Activity Difficulty & Physical Load
+            document.getElementById('editActivityDifficultyLevel').value = activity.difficulty_level || '';
+            document.getElementById('editActivityPhysicalEffort').value = activity.physical_effort || '';
+            
+            // Weather & Season Risk
+            document.getElementById('editActivityWeatherDependency').value = activity.weather_dependency || '';
+            document.getElementById('editActivityMonsoonRisk').value = activity.monsoon_risk || '';
+            document.getElementById('editActivityCancellationChance').value = activity.cancellation_chance || '';
+            
+            // Safety Gear & Requirements
+            document.getElementById('editActivitySafetyEquipmentRequired').value = activity.safety_equipment_required || '';
+            document.getElementById('editActivityEquipmentProvided').value = activity.equipment_provided || '';
+            
+            // Supervision & Guide Quality
+            document.getElementById('editActivityGuideMandatory').value = activity.guide_mandatory || '';
+            document.getElementById('editActivityOperatorType').value = activity.operator_type || '';
+            
+            // Time Flexibility & Buffer
+            document.getElementById('editActivityBufferTime').value = activity.buffer_time_minutes || '';
+            document.getElementById('editActivityReportingTime').value = activity.reporting_time || '';
+            
+            // Crowd & Waiting Impact
+            document.getElementById('editActivityCrowdLevel').value = activity.crowd_level || '';
+            document.getElementById('editActivityWaitingTime').value = activity.avg_waiting_time_minutes || '';
+            
+            // Age & Body Limitation
+            document.getElementById('editActivityMinAge').value = activity.min_age || '';
+            document.getElementById('editActivityMaxAge').value = activity.max_age || '';
+            
+            // Medical Emergency Access
+            document.getElementById('editActivityMedicalDistance').value = activity.nearest_medical_distance_km || '';
+            document.getElementById('editActivityEmergencySupport').value = activity.emergency_support_level || '';
+            
+            // Activity Stop Conditions
+            document.getElementById('editActivityStopConditions').value = activity.stop_conditions || '';
+            
+            // Family & Solo Travel Suitability
+            document.getElementById('editActivityFamilyFriendly').value = activity.family_friendly || '';
+            document.getElementById('editActivitySoloTravelerSafe').value = activity.solo_traveler_safe || '';
             
             // Set available months
             $('.edit-month-checkbox').prop('checked', false);
             $('#editSelectAllMonths').prop('checked', false);
-            if (availableMonths && availableMonths.trim() !== '') {
-                var months = availableMonths.split(',');
+            if (activity.available_months && activity.available_months.trim() !== '') {
+                var months = activity.available_months.split(',');
                 months.forEach(function(month) {
                     month = month.trim();
                     if (month) {
@@ -604,9 +1112,6 @@ $admin = getAdminInfo();
                 $('.edit-month-checkbox').prop('checked', true);
                 $('#editSelectAllMonths').prop('checked', true);
             }
-            
-            // Set ticket price
-            document.getElementById('editTicketPrice').value = ticketPrice || 'Free';
             
             var modal = new bootstrap.Modal(document.getElementById('editActivityModal'));
             modal.show();

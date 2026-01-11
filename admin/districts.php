@@ -14,10 +14,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $name = trim($_POST['name'] ?? '');
             $description = trim($_POST['description'] ?? '');
             $image = trim($_POST['image'] ?? '');
+            $latitude = !empty($_POST['latitude']) ? floatval($_POST['latitude']) : null;
+            $longitude = !empty($_POST['longitude']) ? floatval($_POST['longitude']) : null;
+            $road_type = trim($_POST['road_type'] ?? 'plain');
             
             if (!empty($name) && $state_id > 0) {
-                $stmt = $conn->prepare("INSERT INTO districts (state_id, name, description, image) VALUES (?, ?, ?, ?)");
-                $stmt->bind_param("isss", $state_id, $name, $description, $image);
+                $stmt = $conn->prepare("INSERT INTO districts (state_id, name, description, image, latitude, longitude, road_type) VALUES (?, ?, ?, ?, ?, ?, ?)");
+                $stmt->bind_param("isssddss", $state_id, $name, $description, $image, $latitude, $longitude, $road_type);
                 if ($stmt->execute()) {
                     $message = "City added successfully!";
                     $message_type = "success";
@@ -37,10 +40,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $name = trim($_POST['name'] ?? '');
             $description = trim($_POST['description'] ?? '');
             $image = trim($_POST['image'] ?? '');
+            $latitude = !empty($_POST['latitude']) ? floatval($_POST['latitude']) : null;
+            $longitude = !empty($_POST['longitude']) ? floatval($_POST['longitude']) : null;
+            $road_type = trim($_POST['road_type'] ?? 'plain');
             
             if ($id > 0 && !empty($name) && $state_id > 0) {
-                $stmt = $conn->prepare("UPDATE districts SET state_id = ?, name = ?, description = ?, image = ? WHERE id = ?");
-                $stmt->bind_param("isssi", $state_id, $name, $description, $image, $id);
+                $stmt = $conn->prepare("UPDATE districts SET state_id = ?, name = ?, description = ?, image = ?, latitude = ?, longitude = ?, road_type = ? WHERE id = ?");
+                $stmt->bind_param("isssddssi", $state_id, $name, $description, $image, $latitude, $longitude, $road_type, $id);
                 if ($stmt->execute()) {
                     $message = "City updated successfully!";
                     $message_type = "success";
@@ -174,7 +180,7 @@ $admin = getAdminInfo();
                                     <td><?php echo htmlspecialchars(substr($district['description'] ?? '', 0, 100)); ?><?php echo strlen($district['description'] ?? '') > 100 ? '...' : ''; ?></td>
                                     <td>
                                         <div class="action-buttons">
-                                            <button type="button" class="btn-icon btn-edit" title="Edit" onclick="openEditModal(<?php echo $district['id']; ?>, <?php echo $district['state_id']; ?>, '<?php echo htmlspecialchars(addslashes($district['name'])); ?>', '<?php echo htmlspecialchars(addslashes($district['description'] ?? '')); ?>', '<?php echo htmlspecialchars(addslashes($district['image'] ?? '')); ?>')">
+                                            <button type="button" class="btn-icon btn-edit" title="Edit" onclick="openEditModal(<?php echo $district['id']; ?>, <?php echo $district['state_id']; ?>, '<?php echo htmlspecialchars(addslashes($district['name'])); ?>', '<?php echo htmlspecialchars(addslashes($district['description'] ?? '')); ?>', '<?php echo htmlspecialchars(addslashes($district['image'] ?? '')); ?>', <?php echo $district['latitude'] ?? 'null'; ?>, <?php echo $district['longitude'] ?? 'null'; ?>, '<?php echo htmlspecialchars(addslashes($district['road_type'] ?? 'plain')); ?>')">
                                                 <i class="bi bi-pencil"></i>
                                             </button>
                                             <form method="POST" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this city?');">
@@ -239,6 +245,28 @@ $admin = getAdminInfo();
                             <label for="districtImage" class="form-label">Image URL</label>
                             <input type="url" class="form-control" id="districtImage" name="image" placeholder="https://example.com/image.jpg">
                         </div>
+                        
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label for="districtLatitude" class="form-label"><i class="bi bi-geo-alt"></i> Latitude</label>
+                                <input type="number" step="any" class="form-control" id="districtLatitude" name="latitude" placeholder="e.g., 28.6139">
+                                <small class="form-text text-muted">For distance calculation</small>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="districtLongitude" class="form-label"><i class="bi bi-geo-alt-fill"></i> Longitude</label>
+                                <input type="number" step="any" class="form-control" id="districtLongitude" name="longitude" placeholder="e.g., 77.2090">
+                                <small class="form-text text-muted">For distance calculation</small>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="districtRoadType" class="form-label"><i class="bi bi-road"></i> Road Type</label>
+                                <select class="form-select" id="districtRoadType" name="road_type">
+                                    <option value="plain">Plain</option>
+                                    <option value="hill">Hill</option>
+                                    <option value="mixed">Mixed</option>
+                                </select>
+                                <small class="form-text text-muted">Affects travel time calculation</small>
+                            </div>
+                        </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
@@ -301,7 +329,7 @@ $admin = getAdminInfo();
             }, 100);
         }
 
-        function openEditModal(id, stateId, name, description, image) {
+        function openEditModal(id, stateId, name, description, image, latitude, longitude, roadType) {
             document.getElementById('modalTitle').textContent = 'Edit City';
             document.getElementById('submitText').textContent = 'Update City';
             document.getElementById('formAction').value = 'edit';
@@ -309,6 +337,9 @@ $admin = getAdminInfo();
             document.getElementById('districtName').value = name;
             document.getElementById('districtDescription').value = description;
             document.getElementById('districtImage').value = image;
+            document.getElementById('districtLatitude').value = latitude !== null ? latitude : '';
+            document.getElementById('districtLongitude').value = longitude !== null ? longitude : '';
+            document.getElementById('districtRoadType').value = roadType || 'plain';
             
             var modal = new bootstrap.Modal(document.getElementById('districtModal'));
             modal.show();

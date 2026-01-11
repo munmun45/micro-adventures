@@ -108,10 +108,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $night_travel_safety = trim($_POST['night_travel_safety'] ?? '');
             $safety_level = trim($_POST['safety_level'] ?? 'Medium');
             $religion_restrictions = isset($_POST['religion_restrictions']) && !empty($_POST['religion_restrictions']) ? implode(',', $_POST['religion_restrictions']) : 'No Restriction';
+            // Visit Timing & Crowd Data
+            $best_time_of_day = trim($_POST['best_time_of_day'] ?? '');
+            $avg_visit_time_hours = !empty($_POST['avg_visit_time_hours']) ? floatval($_POST['avg_visit_time_hours']) : null;
+            $crowd_level = trim($_POST['crowd_level'] ?? '');
+            $avg_waiting_time_minutes = !empty($_POST['avg_waiting_time_minutes']) ? intval($_POST['avg_waiting_time_minutes']) : null;
+            // Seasonal / Weather Risk
+            $weather_dependency = trim($_POST['weather_dependency'] ?? '');
+            $monsoon_risk = trim($_POST['monsoon_risk'] ?? '');
+            $sudden_closure_risk = trim($_POST['sudden_closure_risk'] ?? '');
+            // Family / Health Usability
+            $child_friendly = trim($_POST['child_friendly'] ?? '');
+            $senior_friendly = trim($_POST['senior_friendly'] ?? '');
+            $physical_effort = trim($_POST['physical_effort'] ?? '');
+            // Emergency Accessibility
+            $nearest_hospital_distance_km = !empty($_POST['nearest_hospital_distance_km']) ? floatval($_POST['nearest_hospital_distance_km']) : null;
+            $police_response_level = trim($_POST['police_response_level'] ?? '');
+            // Network & Power Availability
+            $digital_amenities = trim($_POST['digital_amenities'] ?? '');
+            $mobile_network = trim($_POST['mobile_network'] ?? '');
+            $internet_availability = trim($_POST['internet_availability'] ?? '');
+            // Place Priority & Experience Quality
+            $experience_score = !empty($_POST['experience_score']) ? intval($_POST['experience_score']) : null;
+            $priority_level = !empty($_POST['priority_level']) ? intval($_POST['priority_level']) : 3;
             
             if (!empty($name) && $city_id > 0) {
-                $stmt = $conn->prepare("INSERT INTO places (city_id, name, description, image, security_info, night_travel_safety, safety_level, religion_restrictions) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
-                $stmt->bind_param("isssssss", $city_id, $name, $description, $image, $security_info, $night_travel_safety, $safety_level, $religion_restrictions);
+                $stmt = $conn->prepare("INSERT INTO places (city_id, name, description, image, security_info, night_travel_safety, safety_level, religion_restrictions, best_time_of_day, avg_visit_time_hours, crowd_level, avg_waiting_time_minutes, weather_dependency, monsoon_risk, sudden_closure_risk, child_friendly, senior_friendly, physical_effort, nearest_hospital_distance_km, police_response_level, digital_amenities, mobile_network, internet_availability, experience_score, priority_level) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                $stmt->bind_param("issssssssdissdsssssssssssii", $city_id, $name, $description, $image, $security_info, $night_travel_safety, $safety_level, $religion_restrictions, $best_time_of_day, $avg_visit_time_hours, $crowd_level, $avg_waiting_time_minutes, $weather_dependency, $monsoon_risk, $sudden_closure_risk, $child_friendly, $senior_friendly, $physical_effort, $nearest_hospital_distance_km, $police_response_level, $digital_amenities, $mobile_network, $internet_availability, $experience_score, $priority_level);
                 if ($stmt->execute()) {
                     $place_id = $stmt->insert_id;
                     
@@ -163,10 +186,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $night_travel_safety = trim($_POST['night_travel_safety'] ?? '');
             $safety_level = trim($_POST['safety_level'] ?? 'Medium');
             $religion_restrictions = isset($_POST['religion_restrictions']) && !empty($_POST['religion_restrictions']) ? implode(',', $_POST['religion_restrictions']) : 'No Restriction';
+            // Visit Timing & Crowd Data
+            $best_time_of_day = trim($_POST['best_time_of_day'] ?? '');
+            $avg_visit_time_hours = !empty($_POST['avg_visit_time_hours']) ? floatval($_POST['avg_visit_time_hours']) : null;
+            $crowd_level = trim($_POST['crowd_level'] ?? '');
+            $avg_waiting_time_minutes = !empty($_POST['avg_waiting_time_minutes']) ? intval($_POST['avg_waiting_time_minutes']) : null;
+            // Seasonal / Weather Risk
+            $weather_dependency = trim($_POST['weather_dependency'] ?? '');
+            $monsoon_risk = trim($_POST['monsoon_risk'] ?? '');
+            $sudden_closure_risk = trim($_POST['sudden_closure_risk'] ?? '');
+            // Family / Health Usability
+            $child_friendly = trim($_POST['child_friendly'] ?? '');
+            $senior_friendly = trim($_POST['senior_friendly'] ?? '');
+            $physical_effort = trim($_POST['physical_effort'] ?? '');
+            // Emergency Accessibility
+            $nearest_hospital_distance_km = !empty($_POST['nearest_hospital_distance_km']) ? floatval($_POST['nearest_hospital_distance_km']) : null;
+            $police_response_level = trim($_POST['police_response_level'] ?? '');
+            // Network & Power Availability
+            $digital_amenities = trim($_POST['digital_amenities'] ?? '');
+            $mobile_network = trim($_POST['mobile_network'] ?? '');
+            $internet_availability = trim($_POST['internet_availability'] ?? '');
+            // Place Priority & Experience Quality
+            $experience_score = !empty($_POST['experience_score']) ? intval($_POST['experience_score']) : null;
+            $priority_level = !empty($_POST['priority_level']) ? intval($_POST['priority_level']) : 3;
             
             if ($id > 0 && !empty($name) && $city_id > 0) {
-                $stmt = $conn->prepare("UPDATE places SET city_id = ?, name = ?, description = ?, image = ?, security_info = ?, night_travel_safety = ?, safety_level = ?, religion_restrictions = ? WHERE id = ?");
-                $stmt->bind_param("isssssssi", $city_id, $name, $description, $image, $security_info, $night_travel_safety, $safety_level, $religion_restrictions, $id);
+                $stmt = $conn->prepare("UPDATE places SET city_id = ?, name = ?, description = ?, image = ?, security_info = ?, night_travel_safety = ?, safety_level = ?, religion_restrictions = ?, best_time_of_day = ?, avg_visit_time_hours = ?, crowd_level = ?, avg_waiting_time_minutes = ?, weather_dependency = ?, monsoon_risk = ?, sudden_closure_risk = ?, child_friendly = ?, senior_friendly = ?, physical_effort = ?, nearest_hospital_distance_km = ?, police_response_level = ?, digital_amenities = ?, mobile_network = ?, internet_availability = ?, experience_score = ?, priority_level = ? WHERE id = ?");
+                $stmt->bind_param("issssssssdissdsssssssssssiii", $city_id, $name, $description, $image, $security_info, $night_travel_safety, $safety_level, $religion_restrictions, $best_time_of_day, $avg_visit_time_hours, $crowd_level, $avg_waiting_time_minutes, $weather_dependency, $monsoon_risk, $sudden_closure_risk, $child_friendly, $senior_friendly, $physical_effort, $nearest_hospital_distance_km, $police_response_level, $digital_amenities, $mobile_network, $internet_availability, $experience_score, $priority_level, $id);
                 if ($stmt->execute()) {
                     // Delete existing hotel types
                     $conn->query("DELETE FROM place_hotel_types WHERE place_id = $id");
@@ -445,7 +491,7 @@ $admin = getAdminInfo();
                                     <td><?php echo htmlspecialchars(substr($place['description'] ?? '', 0, 80)); ?><?php echo strlen($place['description'] ?? '') > 80 ? '...' : ''; ?></td>
                                     <td>
                                         <div class="action-buttons">
-                                            <button type="button" class="btn-icon btn-edit" title="Edit" onclick="openEditModal(<?php echo $place['id']; ?>, <?php echo $place['city_id']; ?>, '<?php echo htmlspecialchars(addslashes($place['name'])); ?>', '<?php echo htmlspecialchars(addslashes($place['description'] ?? '')); ?>', '<?php echo htmlspecialchars(addslashes($place['image'] ?? '')); ?>', '<?php echo htmlspecialchars(addslashes($place['security_info'] ?? '')); ?>', '<?php echo htmlspecialchars(addslashes($place['night_travel_safety'] ?? '')); ?>', '<?php echo htmlspecialchars(addslashes($place['safety_level'] ?? 'Medium')); ?>', '<?php echo htmlspecialchars(addslashes($place['religion_restrictions'] ?? '')); ?>')">
+                                            <button type="button" class="btn-icon btn-edit" title="Edit" onclick="openEditModal(<?php echo $place['id']; ?>, <?php echo $place['city_id']; ?>, '<?php echo htmlspecialchars(addslashes($place['name'])); ?>', '<?php echo htmlspecialchars(addslashes($place['description'] ?? '')); ?>', '<?php echo htmlspecialchars(addslashes($place['image'] ?? '')); ?>', '<?php echo htmlspecialchars(addslashes($place['security_info'] ?? '')); ?>', '<?php echo htmlspecialchars(addslashes($place['night_travel_safety'] ?? '')); ?>', '<?php echo htmlspecialchars(addslashes($place['safety_level'] ?? 'Medium')); ?>', '<?php echo htmlspecialchars(addslashes($place['religion_restrictions'] ?? '')); ?>', '<?php echo htmlspecialchars(addslashes($place['best_time_of_day'] ?? '')); ?>', '<?php echo $place['avg_visit_time_hours'] ?? ''; ?>', '<?php echo htmlspecialchars(addslashes($place['crowd_level'] ?? '')); ?>', '<?php echo $place['avg_waiting_time_minutes'] ?? ''; ?>', '<?php echo htmlspecialchars(addslashes($place['weather_dependency'] ?? '')); ?>', '<?php echo htmlspecialchars(addslashes($place['monsoon_risk'] ?? '')); ?>', '<?php echo htmlspecialchars(addslashes($place['sudden_closure_risk'] ?? '')); ?>', '<?php echo htmlspecialchars(addslashes($place['child_friendly'] ?? '')); ?>', '<?php echo htmlspecialchars(addslashes($place['senior_friendly'] ?? '')); ?>', '<?php echo htmlspecialchars(addslashes($place['physical_effort'] ?? '')); ?>', '<?php echo $place['nearest_hospital_distance_km'] ?? ''; ?>', '<?php echo htmlspecialchars(addslashes($place['police_response_level'] ?? '')); ?>', '<?php echo htmlspecialchars(addslashes($place['digital_amenities'] ?? '')); ?>', '<?php echo htmlspecialchars(addslashes($place['mobile_network'] ?? '')); ?>', '<?php echo htmlspecialchars(addslashes($place['internet_availability'] ?? '')); ?>', '<?php echo $place['experience_score'] ?? ''; ?>', '<?php echo $place['priority_level'] ?? '3'; ?>')">
                                                 <i class="bi bi-pencil"></i>
                                             </button>
                                             <a href="place-activities.php?place_id=<?php echo $place['id']; ?>" class="btn-icon btn-info" title="Manage Activities">
@@ -634,6 +680,165 @@ $admin = getAdminInfo();
                                     </div>
                                     <?php endforeach; ?>
                                 </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Visit Timing & Crowd Data -->
+                        <hr class="my-3">
+                        <h6 class="mb-3"><i class="bi bi-clock-history"></i> Visit Timing & Crowd Data</h6>
+                        <div class="row">
+                            <div class="col-md-3 mb-3">
+                                <label for="placeBestTimeOfDay" class="form-label">Best Time of Day</label>
+                                <select class="form-select" id="placeBestTimeOfDay" name="best_time_of_day">
+                                    <option value="">Select</option>
+                                    <option value="morning">Morning</option>
+                                    <option value="afternoon">Afternoon</option>
+                                    <option value="evening">Evening</option>
+                                    <option value="anytime">Anytime</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label for="placeAvgVisitTime" class="form-label">Avg Visit Time (Hours)</label>
+                                <input type="number" step="0.1" class="form-control" id="placeAvgVisitTime" name="avg_visit_time_hours" placeholder="e.g., 2.5">
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label for="placeCrowdLevel" class="form-label">Crowd Level</label>
+                                <select class="form-select" id="placeCrowdLevel" name="crowd_level">
+                                    <option value="">Select</option>
+                                    <option value="low">Low</option>
+                                    <option value="medium">Medium</option>
+                                    <option value="high">High</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label for="placeWaitingTime" class="form-label">Avg Waiting Time (Minutes)</label>
+                                <input type="number" class="form-control" id="placeWaitingTime" name="avg_waiting_time_minutes" placeholder="e.g., 30">
+                            </div>
+                        </div>
+                        
+                        <!-- Seasonal / Weather Risk -->
+                        <hr class="my-3">
+                        <h6 class="mb-3"><i class="bi bi-cloud-rain"></i> Seasonal / Weather Risk</h6>
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label for="placeWeatherDependency" class="form-label">Weather Dependency</label>
+                                <select class="form-select" id="placeWeatherDependency" name="weather_dependency">
+                                    <option value="">Select</option>
+                                    <option value="low">Low</option>
+                                    <option value="medium">Medium</option>
+                                    <option value="high">High</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="placeMonsoonRisk" class="form-label">Monsoon Risk</label>
+                                <select class="form-select" id="placeMonsoonRisk" name="monsoon_risk">
+                                    <option value="">Select</option>
+                                    <option value="safe">Safe</option>
+                                    <option value="risky">Risky</option>
+                                    <option value="closed">Closed</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="placeSuddenClosureRisk" class="form-label">Sudden Closure Risk</label>
+                                <select class="form-select" id="placeSuddenClosureRisk" name="sudden_closure_risk">
+                                    <option value="">Select</option>
+                                    <option value="rare">Rare</option>
+                                    <option value="occasional">Occasional</option>
+                                    <option value="frequent">Frequent</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <!-- Family / Health Usability -->
+                        <hr class="my-3">
+                        <h6 class="mb-3"><i class="bi bi-people"></i> Family / Health Usability</h6>
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label for="placeChildFriendly" class="form-label">Child Friendly</label>
+                                <select class="form-select" id="placeChildFriendly" name="child_friendly">
+                                    <option value="">Select</option>
+                                    <option value="yes">Yes</option>
+                                    <option value="no">No</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="placeSeniorFriendly" class="form-label">Senior Friendly</label>
+                                <select class="form-select" id="placeSeniorFriendly" name="senior_friendly">
+                                    <option value="">Select</option>
+                                    <option value="yes">Yes</option>
+                                    <option value="no">No</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="placePhysicalEffort" class="form-label">Physical Effort</label>
+                                <select class="form-select" id="placePhysicalEffort" name="physical_effort">
+                                    <option value="">Select</option>
+                                    <option value="low">Low</option>
+                                    <option value="medium">Medium</option>
+                                    <option value="high">High</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <!-- Emergency Accessibility -->
+                        <hr class="my-3">
+                        <h6 class="mb-3"><i class="bi bi-hospital"></i> Emergency Accessibility</h6>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="placeHospitalDistance" class="form-label">Nearest Hospital Distance (km)</label>
+                                <input type="number" step="0.01" class="form-control" id="placeHospitalDistance" name="nearest_hospital_distance_km" placeholder="e.g., 5.5">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="placePoliceResponse" class="form-label">Police Response Level</label>
+                                <select class="form-select" id="placePoliceResponse" name="police_response_level">
+                                    <option value="">Select</option>
+                                    <option value="good">Good</option>
+                                    <option value="medium">Medium</option>
+                                    <option value="poor">Poor</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <!-- Network & Power Availability -->
+                        <hr class="my-3">
+                        <h6 class="mb-3"><i class="bi bi-wifi"></i> Network & Power Availability</h6>
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label for="placeMobileNetwork" class="form-label">Mobile Network</label>
+                                <select class="form-select" id="placeMobileNetwork" name="mobile_network">
+                                    <option value="">Select</option>
+                                    <option value="good">Good</option>
+                                    <option value="weak">Weak</option>
+                                    <option value="none">None</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="placeInternetAvailability" class="form-label">Internet Availability</label>
+                                <select class="form-select" id="placeInternetAvailability" name="internet_availability">
+                                    <option value="">Select</option>
+                                    <option value="yes">Yes</option>
+                                    <option value="limited">Limited</option>
+                                    <option value="no">No</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="placeDigitalAmenities" class="form-label">Digital Amenities</label>
+                                <input type="text" class="form-control" id="placeDigitalAmenities" name="digital_amenities" placeholder="WiFi, charging points, etc.">
+                            </div>
+                        </div>
+                        
+                        <!-- Place Priority & Experience Quality -->
+                        <hr class="my-3">
+                        <h6 class="mb-3"><i class="bi bi-star"></i> Place Priority & Experience Quality</h6>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="placeExperienceScore" class="form-label">Experience Score (1-5)</label>
+                                <input type="number" min="1" max="5" class="form-control" id="placeExperienceScore" name="experience_score" placeholder="1 to 5">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="placePriorityLevel" class="form-label">Priority Level</label>
+                                <input type="number" class="form-control" id="placePriorityLevel" name="priority_level" value="3" placeholder="Default: 3">
+                                <small class="form-text text-muted">Higher number = higher priority in recommendations</small>
                             </div>
                         </div>
                     </div>
@@ -901,7 +1106,7 @@ $admin = getAdminInfo();
         }
         
 
-        function openEditModal(id, cityId, name, description, image, securityInfo, nightTravelSafety, safetyLevel, religionRestrictions) {
+        function openEditModal(id, cityId, name, description, image, securityInfo, nightTravelSafety, safetyLevel, religionRestrictions, bestTimeOfDay, avgVisitTimeHours, crowdLevel, avgWaitingTimeMinutes, weatherDependency, monsoonRisk, suddenClosureRisk, childFriendly, seniorFriendly, physicalEffort, nearestHospitalDistanceKm, policeResponseLevel, digitalAmenities, mobileNetwork, internetAvailability, experienceScore, priorityLevel) {
             document.getElementById('modalTitle').textContent = 'Edit Place';
             document.getElementById('submitText').textContent = 'Update Place';
             document.getElementById('formAction').value = 'edit';
@@ -912,6 +1117,25 @@ $admin = getAdminInfo();
             document.getElementById('placeSecurityInfo').value = securityInfo;
             document.getElementById('placeNightTravelSafety').value = nightTravelSafety;
             document.getElementById('placeSafetyLevel').value = safetyLevel || 'Medium';
+            
+            // New fields
+            document.getElementById('placeBestTimeOfDay').value = bestTimeOfDay || '';
+            document.getElementById('placeAvgVisitTime').value = avgVisitTimeHours || '';
+            document.getElementById('placeCrowdLevel').value = crowdLevel || '';
+            document.getElementById('placeWaitingTime').value = avgWaitingTimeMinutes || '';
+            document.getElementById('placeWeatherDependency').value = weatherDependency || '';
+            document.getElementById('placeMonsoonRisk').value = monsoonRisk || '';
+            document.getElementById('placeSuddenClosureRisk').value = suddenClosureRisk || '';
+            document.getElementById('placeChildFriendly').value = childFriendly || '';
+            document.getElementById('placeSeniorFriendly').value = seniorFriendly || '';
+            document.getElementById('placePhysicalEffort').value = physicalEffort || '';
+            document.getElementById('placeHospitalDistance').value = nearestHospitalDistanceKm || '';
+            document.getElementById('placePoliceResponse').value = policeResponseLevel || '';
+            document.getElementById('placeDigitalAmenities').value = digitalAmenities || '';
+            document.getElementById('placeMobileNetwork').value = mobileNetwork || '';
+            document.getElementById('placeInternetAvailability').value = internetAvailability || '';
+            document.getElementById('placeExperienceScore').value = experienceScore || '';
+            document.getElementById('placePriorityLevel').value = priorityLevel || '3';
             
             // Uncheck all checkboxes first
             $('.hotel-checkbox, .transport-checkbox, .religion-checkbox').prop('checked', false);
