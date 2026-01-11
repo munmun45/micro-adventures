@@ -131,10 +131,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Place Priority & Experience Quality
             $experience_score = !empty($_POST['experience_score']) ? intval($_POST['experience_score']) : null;
             $priority_level = !empty($_POST['priority_level']) ? intval($_POST['priority_level']) : 3;
+            $status = trim($_POST['status'] ?? 'active');
+            $is_verified = trim($_POST['is_verified'] ?? 'no');
             
             if (!empty($name) && $city_id > 0) {
-                $stmt = $conn->prepare("INSERT INTO places (city_id, name, description, image, security_info, night_travel_safety, safety_level, religion_restrictions, best_time_of_day, avg_visit_time_hours, crowd_level, avg_waiting_time_minutes, weather_dependency, monsoon_risk, sudden_closure_risk, child_friendly, senior_friendly, physical_effort, nearest_hospital_distance_km, police_response_level, digital_amenities, mobile_network, internet_availability, experience_score, priority_level) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-                $stmt->bind_param("issssssssdissdsssssssssssii", $city_id, $name, $description, $image, $security_info, $night_travel_safety, $safety_level, $religion_restrictions, $best_time_of_day, $avg_visit_time_hours, $crowd_level, $avg_waiting_time_minutes, $weather_dependency, $monsoon_risk, $sudden_closure_risk, $child_friendly, $senior_friendly, $physical_effort, $nearest_hospital_distance_km, $police_response_level, $digital_amenities, $mobile_network, $internet_availability, $experience_score, $priority_level);
+                $stmt = $conn->prepare("INSERT INTO places (city_id, name, description, image, security_info, night_travel_safety, safety_level, religion_restrictions, best_time_of_day, avg_visit_time_hours, crowd_level, avg_waiting_time_minutes, weather_dependency, monsoon_risk, sudden_closure_risk, child_friendly, senior_friendly, physical_effort, nearest_hospital_distance_km, police_response_level, digital_amenities, mobile_network, internet_availability, experience_score, priority_level, status, is_verified) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                $stmt->bind_param("issssssssdissdsssssssssssiiss", $city_id, $name, $description, $image, $security_info, $night_travel_safety, $safety_level, $religion_restrictions, $best_time_of_day, $avg_visit_time_hours, $crowd_level, $avg_waiting_time_minutes, $weather_dependency, $monsoon_risk, $sudden_closure_risk, $child_friendly, $senior_friendly, $physical_effort, $nearest_hospital_distance_km, $police_response_level, $digital_amenities, $mobile_network, $internet_availability, $experience_score, $priority_level, $status, $is_verified);
                 if ($stmt->execute()) {
                     $place_id = $stmt->insert_id;
                     
@@ -209,10 +211,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Place Priority & Experience Quality
             $experience_score = !empty($_POST['experience_score']) ? intval($_POST['experience_score']) : null;
             $priority_level = !empty($_POST['priority_level']) ? intval($_POST['priority_level']) : 3;
+            $status = trim($_POST['status'] ?? 'active');
+            $is_verified = trim($_POST['is_verified'] ?? 'no');
             
             if ($id > 0 && !empty($name) && $city_id > 0) {
-                $stmt = $conn->prepare("UPDATE places SET city_id = ?, name = ?, description = ?, image = ?, security_info = ?, night_travel_safety = ?, safety_level = ?, religion_restrictions = ?, best_time_of_day = ?, avg_visit_time_hours = ?, crowd_level = ?, avg_waiting_time_minutes = ?, weather_dependency = ?, monsoon_risk = ?, sudden_closure_risk = ?, child_friendly = ?, senior_friendly = ?, physical_effort = ?, nearest_hospital_distance_km = ?, police_response_level = ?, digital_amenities = ?, mobile_network = ?, internet_availability = ?, experience_score = ?, priority_level = ? WHERE id = ?");
-                $stmt->bind_param("issssssssdissdsssssssssssiii", $city_id, $name, $description, $image, $security_info, $night_travel_safety, $safety_level, $religion_restrictions, $best_time_of_day, $avg_visit_time_hours, $crowd_level, $avg_waiting_time_minutes, $weather_dependency, $monsoon_risk, $sudden_closure_risk, $child_friendly, $senior_friendly, $physical_effort, $nearest_hospital_distance_km, $police_response_level, $digital_amenities, $mobile_network, $internet_availability, $experience_score, $priority_level, $id);
+                $stmt = $conn->prepare("UPDATE places SET city_id = ?, name = ?, description = ?, image = ?, security_info = ?, night_travel_safety = ?, safety_level = ?, religion_restrictions = ?, best_time_of_day = ?, avg_visit_time_hours = ?, crowd_level = ?, avg_waiting_time_minutes = ?, weather_dependency = ?, monsoon_risk = ?, sudden_closure_risk = ?, child_friendly = ?, senior_friendly = ?, physical_effort = ?, nearest_hospital_distance_km = ?, police_response_level = ?, digital_amenities = ?, mobile_network = ?, internet_availability = ?, experience_score = ?, priority_level = ?, status = ?, is_verified = ? WHERE id = ?");
+                $stmt->bind_param("issssssssdissdsssssssssssiissi", $city_id, $name, $description, $image, $security_info, $night_travel_safety, $safety_level, $religion_restrictions, $best_time_of_day, $avg_visit_time_hours, $crowd_level, $avg_waiting_time_minutes, $weather_dependency, $monsoon_risk, $sudden_closure_risk, $child_friendly, $senior_friendly, $physical_effort, $nearest_hospital_distance_km, $police_response_level, $digital_amenities, $mobile_network, $internet_availability, $experience_score, $priority_level, $status, $is_verified, $id);
                 if ($stmt->execute()) {
                     // Delete existing hotel types
                     $conn->query("DELETE FROM place_hotel_types WHERE place_id = $id");
@@ -491,7 +495,7 @@ $admin = getAdminInfo();
                                     <td><?php echo htmlspecialchars(substr($place['description'] ?? '', 0, 80)); ?><?php echo strlen($place['description'] ?? '') > 80 ? '...' : ''; ?></td>
                                     <td>
                                         <div class="action-buttons">
-                                            <button type="button" class="btn-icon btn-edit" title="Edit" onclick="openEditModal(<?php echo $place['id']; ?>, <?php echo $place['city_id']; ?>, '<?php echo htmlspecialchars(addslashes($place['name'])); ?>', '<?php echo htmlspecialchars(addslashes($place['description'] ?? '')); ?>', '<?php echo htmlspecialchars(addslashes($place['image'] ?? '')); ?>', '<?php echo htmlspecialchars(addslashes($place['security_info'] ?? '')); ?>', '<?php echo htmlspecialchars(addslashes($place['night_travel_safety'] ?? '')); ?>', '<?php echo htmlspecialchars(addslashes($place['safety_level'] ?? 'Medium')); ?>', '<?php echo htmlspecialchars(addslashes($place['religion_restrictions'] ?? '')); ?>', '<?php echo htmlspecialchars(addslashes($place['best_time_of_day'] ?? '')); ?>', '<?php echo $place['avg_visit_time_hours'] ?? ''; ?>', '<?php echo htmlspecialchars(addslashes($place['crowd_level'] ?? '')); ?>', '<?php echo $place['avg_waiting_time_minutes'] ?? ''; ?>', '<?php echo htmlspecialchars(addslashes($place['weather_dependency'] ?? '')); ?>', '<?php echo htmlspecialchars(addslashes($place['monsoon_risk'] ?? '')); ?>', '<?php echo htmlspecialchars(addslashes($place['sudden_closure_risk'] ?? '')); ?>', '<?php echo htmlspecialchars(addslashes($place['child_friendly'] ?? '')); ?>', '<?php echo htmlspecialchars(addslashes($place['senior_friendly'] ?? '')); ?>', '<?php echo htmlspecialchars(addslashes($place['physical_effort'] ?? '')); ?>', '<?php echo $place['nearest_hospital_distance_km'] ?? ''; ?>', '<?php echo htmlspecialchars(addslashes($place['police_response_level'] ?? '')); ?>', '<?php echo htmlspecialchars(addslashes($place['digital_amenities'] ?? '')); ?>', '<?php echo htmlspecialchars(addslashes($place['mobile_network'] ?? '')); ?>', '<?php echo htmlspecialchars(addslashes($place['internet_availability'] ?? '')); ?>', '<?php echo $place['experience_score'] ?? ''; ?>', '<?php echo $place['priority_level'] ?? '3'; ?>')">
+                                            <button type="button" class="btn-icon btn-edit" title="Edit" onclick="openEditModal(<?php echo $place['id']; ?>, <?php echo $place['city_id']; ?>, '<?php echo htmlspecialchars(addslashes($place['name'])); ?>', '<?php echo htmlspecialchars(addslashes($place['description'] ?? '')); ?>', '<?php echo htmlspecialchars(addslashes($place['image'] ?? '')); ?>', '<?php echo htmlspecialchars(addslashes($place['security_info'] ?? '')); ?>', '<?php echo htmlspecialchars(addslashes($place['night_travel_safety'] ?? '')); ?>', '<?php echo htmlspecialchars(addslashes($place['safety_level'] ?? 'Medium')); ?>', '<?php echo htmlspecialchars(addslashes($place['religion_restrictions'] ?? '')); ?>', '<?php echo htmlspecialchars(addslashes($place['best_time_of_day'] ?? '')); ?>', '<?php echo $place['avg_visit_time_hours'] ?? ''; ?>', '<?php echo htmlspecialchars(addslashes($place['crowd_level'] ?? '')); ?>', '<?php echo $place['avg_waiting_time_minutes'] ?? ''; ?>', '<?php echo htmlspecialchars(addslashes($place['weather_dependency'] ?? '')); ?>', '<?php echo htmlspecialchars(addslashes($place['monsoon_risk'] ?? '')); ?>', '<?php echo htmlspecialchars(addslashes($place['sudden_closure_risk'] ?? '')); ?>', '<?php echo htmlspecialchars(addslashes($place['child_friendly'] ?? '')); ?>', '<?php echo htmlspecialchars(addslashes($place['senior_friendly'] ?? '')); ?>', '<?php echo htmlspecialchars(addslashes($place['physical_effort'] ?? '')); ?>', '<?php echo $place['nearest_hospital_distance_km'] ?? ''; ?>', '<?php echo htmlspecialchars(addslashes($place['police_response_level'] ?? '')); ?>', '<?php echo htmlspecialchars(addslashes($place['digital_amenities'] ?? '')); ?>', '<?php echo htmlspecialchars(addslashes($place['mobile_network'] ?? '')); ?>', '<?php echo htmlspecialchars(addslashes($place['internet_availability'] ?? '')); ?>', '<?php echo $place['experience_score'] ?? ''; ?>', '<?php echo $place['priority_level'] ?? '3'; ?>', '<?php echo htmlspecialchars(addslashes($place['status'] ?? 'active')); ?>', '<?php echo htmlspecialchars(addslashes($place['is_verified'] ?? 'no')); ?>')">
                                                 <i class="bi bi-pencil"></i>
                                             </button>
                                             <a href="place-activities.php?place_id=<?php echo $place['id']; ?>" class="btn-icon btn-info" title="Manage Activities">
@@ -841,6 +845,22 @@ $admin = getAdminInfo();
                                 <small class="form-text text-muted">Higher number = higher priority in recommendations</small>
                             </div>
                         </div>
+                        <div class="row g-2">
+                            <div class="col-md-4 mb-3">
+                                <label for="placeStatus" class="form-label">Status</label>
+                                <select class="form-select" id="placeStatus" name="status">
+                                    <option value="active" selected>Active</option>
+                                    <option value="inactive">Inactive</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="placeIsVerified" class="form-label">Is Verified</label>
+                                <select class="form-select" id="placeIsVerified" name="is_verified">
+                                    <option value="no" selected>No</option>
+                                    <option value="yes">Yes</option>
+                                </select>
+                            </div>
+                        </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
@@ -1106,7 +1126,7 @@ $admin = getAdminInfo();
         }
         
 
-        function openEditModal(id, cityId, name, description, image, securityInfo, nightTravelSafety, safetyLevel, religionRestrictions, bestTimeOfDay, avgVisitTimeHours, crowdLevel, avgWaitingTimeMinutes, weatherDependency, monsoonRisk, suddenClosureRisk, childFriendly, seniorFriendly, physicalEffort, nearestHospitalDistanceKm, policeResponseLevel, digitalAmenities, mobileNetwork, internetAvailability, experienceScore, priorityLevel) {
+        function openEditModal(id, cityId, name, description, image, securityInfo, nightTravelSafety, safetyLevel, religionRestrictions, bestTimeOfDay, avgVisitTimeHours, crowdLevel, avgWaitingTimeMinutes, weatherDependency, monsoonRisk, suddenClosureRisk, childFriendly, seniorFriendly, physicalEffort, nearestHospitalDistanceKm, policeResponseLevel, digitalAmenities, mobileNetwork, internetAvailability, experienceScore, priorityLevel, status, isVerified) {
             document.getElementById('modalTitle').textContent = 'Edit Place';
             document.getElementById('submitText').textContent = 'Update Place';
             document.getElementById('formAction').value = 'edit';

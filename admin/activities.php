@@ -13,10 +13,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $name = trim($_POST['name'] ?? '');
             $description = trim($_POST['description'] ?? '');
             $image = trim($_POST['image'] ?? '');
+            $status = trim($_POST['status'] ?? 'active');
             
             if (!empty($name)) {
-                $stmt = $conn->prepare("INSERT INTO activity_types (name, description, image) VALUES (?, ?, ?)");
-                $stmt->bind_param("sss", $name, $description, $image);
+                $stmt = $conn->prepare("INSERT INTO activity_types (name, description, image, status) VALUES (?, ?, ?, ?)");
+                $stmt->bind_param("ssss", $name, $description, $image, $status);
                 if ($stmt->execute()) {
                     $message = "Activity type added successfully!";
                     $message_type = "success";
@@ -35,10 +36,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $name = trim($_POST['name'] ?? '');
             $description = trim($_POST['description'] ?? '');
             $image = trim($_POST['image'] ?? '');
+            $status = trim($_POST['status'] ?? 'active');
             
             if ($id > 0 && !empty($name)) {
-                $stmt = $conn->prepare("UPDATE activity_types SET name = ?, description = ?, image = ? WHERE id = ?");
-                $stmt->bind_param("sssi", $name, $description, $image, $id);
+                $stmt = $conn->prepare("UPDATE activity_types SET name = ?, description = ?, image = ?, status = ? WHERE id = ?");
+                $stmt->bind_param("ssssi", $name, $description, $image, $status, $id);
                 if ($stmt->execute()) {
                     $message = "Activity type updated successfully!";
                     $message_type = "success";
@@ -161,7 +163,7 @@ $admin = getAdminInfo();
                                     <td><?php echo htmlspecialchars(substr($activity['description'] ?? '', 0, 100)); ?><?php echo strlen($activity['description'] ?? '') > 100 ? '...' : ''; ?></td>
                                     <td>
                                         <div class="action-buttons">
-                                            <button type="button" class="btn-icon btn-edit" title="Edit" onclick="openEditModal(<?php echo $activity['id']; ?>, '<?php echo htmlspecialchars(addslashes($activity['name'])); ?>', '<?php echo htmlspecialchars(addslashes($activity['description'] ?? '')); ?>', '<?php echo htmlspecialchars(addslashes($activity['image'] ?? '')); ?>')">
+                                            <button type="button" class="btn-icon btn-edit" title="Edit" onclick="openEditModal(<?php echo $activity['id']; ?>, '<?php echo htmlspecialchars(addslashes($activity['name'])); ?>', '<?php echo htmlspecialchars(addslashes($activity['description'] ?? '')); ?>', '<?php echo htmlspecialchars(addslashes($activity['image'] ?? '')); ?>', '<?php echo htmlspecialchars(addslashes($activity['status'] ?? 'active')); ?>')">
                                                 <i class="bi bi-pencil"></i>
                                             </button>
                                             <form method="POST" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this activity type?');">
@@ -216,6 +218,14 @@ $admin = getAdminInfo();
                             <label for="activityImage" class="form-label">Image URL</label>
                             <input type="url" class="form-control" id="activityImage" name="image" placeholder="https://example.com/image.jpg">
                         </div>
+                        
+                        <div class="mb-3">
+                            <label for="activityStatus" class="form-label">Status</label>
+                            <select class="form-select" id="activityStatus" name="status">
+                                <option value="active" selected>Active</option>
+                                <option value="inactive">Inactive</option>
+                            </select>
+                        </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
@@ -240,7 +250,7 @@ $admin = getAdminInfo();
             document.getElementById('activityForm').reset();
         }
 
-        function openEditModal(id, name, description, image) {
+        function openEditModal(id, name, description, image, status) {
             document.getElementById('modalTitle').textContent = 'Edit Activity Type';
             document.getElementById('submitText').textContent = 'Update Activity';
             document.getElementById('formAction').value = 'edit';
@@ -248,6 +258,7 @@ $admin = getAdminInfo();
             document.getElementById('activityName').value = name;
             document.getElementById('activityDescription').value = description;
             document.getElementById('activityImage').value = image;
+            document.getElementById('activityStatus').value = status || 'active';
             
             var modal = new bootstrap.Modal(document.getElementById('activityModal'));
             modal.show();

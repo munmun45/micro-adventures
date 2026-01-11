@@ -15,10 +15,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $description = trim($_POST['description'] ?? '');
             $image = trim($_POST['image'] ?? '');
             $best_months = isset($_POST['best_months']) ? implode(',', $_POST['best_months']) : '';
+            $status = trim($_POST['status'] ?? 'active');
             
             if (!empty($name) && $country_id > 0) {
-                $stmt = $conn->prepare("INSERT INTO states (country_id, name, description, image, best_months) VALUES (?, ?, ?, ?, ?)");
-                $stmt->bind_param("issss", $country_id, $name, $description, $image, $best_months);
+                $stmt = $conn->prepare("INSERT INTO states (country_id, name, description, image, best_months, status) VALUES (?, ?, ?, ?, ?, ?)");
+                $stmt->bind_param("isssss", $country_id, $name, $description, $image, $best_months, $status);
                 if ($stmt->execute()) {
                     $message = "State added successfully!";
                     $message_type = "success";
@@ -39,10 +40,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $description = trim($_POST['description'] ?? '');
             $image = trim($_POST['image'] ?? '');
             $best_months = isset($_POST['best_months']) ? implode(',', $_POST['best_months']) : '';
+            $status = trim($_POST['status'] ?? 'active');
             
             if ($id > 0 && !empty($name) && $country_id > 0) {
-                $stmt = $conn->prepare("UPDATE states SET country_id = ?, name = ?, description = ?, image = ?, best_months = ? WHERE id = ?");
-                $stmt->bind_param("issssi", $country_id, $name, $description, $image, $best_months, $id);
+                $stmt = $conn->prepare("UPDATE states SET country_id = ?, name = ?, description = ?, image = ?, best_months = ?, status = ? WHERE id = ?");
+                $stmt->bind_param("isssssi", $country_id, $name, $description, $image, $best_months, $status, $id);
                 if ($stmt->execute()) {
                     $message = "State updated successfully!";
                     $message_type = "success";
@@ -188,7 +190,7 @@ $admin = getAdminInfo();
                                     <td><?php echo htmlspecialchars(substr($state['description'] ?? '', 0, 100)); ?><?php echo strlen($state['description'] ?? '') > 100 ? '...' : ''; ?></td>
                                     <td>
                                         <div class="action-buttons">
-                                            <button type="button" class="btn-icon btn-edit" title="Edit" onclick="openEditModal(<?php echo $state['id']; ?>, <?php echo $state['country_id']; ?>, '<?php echo htmlspecialchars(addslashes($state['name'])); ?>', '<?php echo htmlspecialchars(addslashes($state['description'] ?? '')); ?>', '<?php echo htmlspecialchars(addslashes($state['image'] ?? '')); ?>', '<?php echo htmlspecialchars(addslashes($state['best_months'] ?? '')); ?>')">
+                                            <button type="button" class="btn-icon btn-edit" title="Edit" onclick="openEditModal(<?php echo $state['id']; ?>, <?php echo $state['country_id']; ?>, '<?php echo htmlspecialchars(addslashes($state['name'])); ?>', '<?php echo htmlspecialchars(addslashes($state['description'] ?? '')); ?>', '<?php echo htmlspecialchars(addslashes($state['image'] ?? '')); ?>', '<?php echo htmlspecialchars(addslashes($state['best_months'] ?? '')); ?>', '<?php echo htmlspecialchars(addslashes($state['status'] ?? 'active')); ?>')">
                                                 <i class="bi bi-pencil"></i>
                                             </button>
                                             <form method="POST" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this state?');">
@@ -271,6 +273,14 @@ $admin = getAdminInfo();
                                 <option value="December">December</option>
                             </select>
                             <small class="form-text text-muted">Select multiple months when this state is best to visit</small>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="stateStatus" class="form-label">Status</label>
+                            <select class="form-select" id="stateStatus" name="status">
+                                <option value="active" selected>Active</option>
+                                <option value="inactive">Inactive</option>
+                            </select>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -366,6 +376,7 @@ $admin = getAdminInfo();
             document.getElementById('stateName').value = name;
             document.getElementById('stateDescription').value = description;
             document.getElementById('stateImage').value = image;
+            document.getElementById('stateStatus').value = status || 'active';
             
             var modal = new bootstrap.Modal(document.getElementById('stateModal'));
             modal.show();

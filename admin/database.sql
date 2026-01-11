@@ -48,6 +48,7 @@ CREATE TABLE IF NOT EXISTS countries (
     name VARCHAR(100) NOT NULL,
     description TEXT,
     image VARCHAR(255),
+    status ENUM('active','inactive') DEFAULT 'active',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -59,6 +60,7 @@ CREATE TABLE IF NOT EXISTS states (
     description TEXT,
     image VARCHAR(255),
     best_months TEXT,
+    status ENUM('active','inactive') DEFAULT 'active',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (country_id) REFERENCES countries(id) ON DELETE CASCADE
 );
@@ -73,6 +75,7 @@ CREATE TABLE IF NOT EXISTS districts (
     latitude DECIMAL(10,7),
     longitude DECIMAL(10,7),
     road_type ENUM('plain','hill','mixed') DEFAULT 'plain',
+    status ENUM('active','inactive') DEFAULT 'active',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (state_id) REFERENCES states(id) ON DELETE CASCADE
 );
@@ -83,6 +86,7 @@ CREATE TABLE IF NOT EXISTS activity_types (
     name VARCHAR(100) NOT NULL,
     description TEXT,
     image VARCHAR(255),
+    status ENUM('active','inactive') DEFAULT 'active',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -94,6 +98,7 @@ CREATE TABLE IF NOT EXISTS hotel_types (
     image VARCHAR(255),
     min_price_per_night DECIMAL(10,2),
     max_price_per_night DECIMAL(10,2),
+    status ENUM('active','inactive') DEFAULT 'active',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -103,6 +108,7 @@ CREATE TABLE IF NOT EXISTS transport_types (
     name VARCHAR(100) NOT NULL,
     description TEXT,
     image VARCHAR(255),
+    status ENUM('active','inactive') DEFAULT 'active',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -155,6 +161,8 @@ CREATE TABLE IF NOT EXISTS places (
     -- Place Priority & Experience Quality
     experience_score INT CHECK (experience_score BETWEEN 1 AND 5),
     priority_level INT DEFAULT 3,
+    status ENUM('active','inactive') DEFAULT 'active',
+    is_verified ENUM('yes','no') DEFAULT 'no',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (city_id) REFERENCES districts(id) ON DELETE CASCADE
 );
@@ -225,6 +233,9 @@ CREATE TABLE IF NOT EXISTS place_activities (
     -- Family & Solo Travel Suitability
     family_friendly ENUM('yes','no'),
     solo_traveler_safe ENUM('yes','no'),
+    status ENUM('active','inactive') DEFAULT 'active',
+    is_verified ENUM('yes','no') DEFAULT 'no',
+    priority_level INT DEFAULT 3,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (place_id) REFERENCES places(id) ON DELETE CASCADE,
     FOREIGN KEY (activity_type_id) REFERENCES activity_types(id) ON DELETE CASCADE,
@@ -358,6 +369,36 @@ INSERT INTO transport_price_rules (transport_type_id, sub_type, min_cost_per_km,
 -- Car (assuming Car is id=2)
 (2, 'Petrol Car', 7.00, 10.00, 'Car rental with fuel cost included');
 
+-- Add status field to existing tables (for existing databases)
+-- Run these ALTER TABLE statements if you have an existing database
+
+ALTER TABLE countries
+ADD COLUMN status ENUM('active','inactive') DEFAULT 'active';
+
+ALTER TABLE states
+ADD COLUMN status ENUM('active','inactive') DEFAULT 'active';
+
+ALTER TABLE districts
+ADD COLUMN status ENUM('active','inactive') DEFAULT 'active';
+
+ALTER TABLE activity_types
+ADD COLUMN status ENUM('active','inactive') DEFAULT 'active';
+
+ALTER TABLE hotel_types
+ADD COLUMN status ENUM('active','inactive') DEFAULT 'active';
+
+ALTER TABLE transport_types
+ADD COLUMN status ENUM('active','inactive') DEFAULT 'active';
+
+ALTER TABLE places
+ADD COLUMN status ENUM('active','inactive') DEFAULT 'active',
+ADD COLUMN is_verified ENUM('yes','no') DEFAULT 'no';
+
+ALTER TABLE place_activities
+ADD COLUMN status ENUM('active','inactive') DEFAULT 'active',
+ADD COLUMN is_verified ENUM('yes','no') DEFAULT 'no',
+ADD COLUMN priority_level INT DEFAULT 3;
+
 -- Insert Sample Places
 INSERT INTO places (city_id, name, description, image, security_info, night_travel_safety, safety_level, religion_restrictions, best_time_of_day, avg_visit_time_hours, crowd_level, avg_waiting_time_minutes, weather_dependency, monsoon_risk, sudden_closure_risk, child_friendly, senior_friendly, physical_effort, nearest_hospital_distance_km, police_response_level, digital_amenities, mobile_network, internet_availability, experience_score, priority_level) VALUES
 -- Mumbai Places
@@ -473,7 +514,7 @@ INSERT INTO place_activities (place_id, activity_type_id, safety_info, safety_le
 (12, 7, 'Be cautious when boarding trains. Hold handrails. Follow railway safety guidelines.', 'High', 'All ages', 'No restriction', 'Mobility issues, severe balance problems', '08:00:00', '17:00:00', 'March,April,May,June,July,August,September,October,November', '50-200');
 
 -- Planning Rules Table
-CREATE TABLE IF NOT EXISTS planning_rules (
+update planning_rules (
     id INT AUTO_INCREMENT PRIMARY KEY,
     same_stay_hour_limit INT DEFAULT 4,
     travel_day_hour_limit INT DEFAULT 7,

@@ -17,10 +17,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $latitude = !empty($_POST['latitude']) ? floatval($_POST['latitude']) : null;
             $longitude = !empty($_POST['longitude']) ? floatval($_POST['longitude']) : null;
             $road_type = trim($_POST['road_type'] ?? 'plain');
+            $status = trim($_POST['status'] ?? 'active');
             
             if (!empty($name) && $state_id > 0) {
-                $stmt = $conn->prepare("INSERT INTO districts (state_id, name, description, image, latitude, longitude, road_type) VALUES (?, ?, ?, ?, ?, ?, ?)");
-                $stmt->bind_param("isssddss", $state_id, $name, $description, $image, $latitude, $longitude, $road_type);
+                $stmt = $conn->prepare("INSERT INTO districts (state_id, name, description, image, latitude, longitude, road_type, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+                $stmt->bind_param("isssddsss", $state_id, $name, $description, $image, $latitude, $longitude, $road_type, $status);
                 if ($stmt->execute()) {
                     $message = "City added successfully!";
                     $message_type = "success";
@@ -43,10 +44,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $latitude = !empty($_POST['latitude']) ? floatval($_POST['latitude']) : null;
             $longitude = !empty($_POST['longitude']) ? floatval($_POST['longitude']) : null;
             $road_type = trim($_POST['road_type'] ?? 'plain');
+            $status = trim($_POST['status'] ?? 'active');
             
             if ($id > 0 && !empty($name) && $state_id > 0) {
-                $stmt = $conn->prepare("UPDATE districts SET state_id = ?, name = ?, description = ?, image = ?, latitude = ?, longitude = ?, road_type = ? WHERE id = ?");
-                $stmt->bind_param("isssddssi", $state_id, $name, $description, $image, $latitude, $longitude, $road_type, $id);
+                $stmt = $conn->prepare("UPDATE districts SET state_id = ?, name = ?, description = ?, image = ?, latitude = ?, longitude = ?, road_type = ?, status = ? WHERE id = ?");
+                $stmt->bind_param("isssddsssi", $state_id, $name, $description, $image, $latitude, $longitude, $road_type, $status, $id);
                 if ($stmt->execute()) {
                     $message = "City updated successfully!";
                     $message_type = "success";
@@ -180,7 +182,7 @@ $admin = getAdminInfo();
                                     <td><?php echo htmlspecialchars(substr($district['description'] ?? '', 0, 100)); ?><?php echo strlen($district['description'] ?? '') > 100 ? '...' : ''; ?></td>
                                     <td>
                                         <div class="action-buttons">
-                                            <button type="button" class="btn-icon btn-edit" title="Edit" onclick="openEditModal(<?php echo $district['id']; ?>, <?php echo $district['state_id']; ?>, '<?php echo htmlspecialchars(addslashes($district['name'])); ?>', '<?php echo htmlspecialchars(addslashes($district['description'] ?? '')); ?>', '<?php echo htmlspecialchars(addslashes($district['image'] ?? '')); ?>', <?php echo $district['latitude'] ?? 'null'; ?>, <?php echo $district['longitude'] ?? 'null'; ?>, '<?php echo htmlspecialchars(addslashes($district['road_type'] ?? 'plain')); ?>')">
+                                            <button type="button" class="btn-icon btn-edit" title="Edit" onclick="openEditModal(<?php echo $district['id']; ?>, <?php echo $district['state_id']; ?>, '<?php echo htmlspecialchars(addslashes($district['name'])); ?>', '<?php echo htmlspecialchars(addslashes($district['description'] ?? '')); ?>', '<?php echo htmlspecialchars(addslashes($district['image'] ?? '')); ?>', <?php echo $district['latitude'] ?? 'null'; ?>, <?php echo $district['longitude'] ?? 'null'; ?>, '<?php echo htmlspecialchars(addslashes($district['road_type'] ?? 'plain')); ?>', '<?php echo htmlspecialchars(addslashes($district['status'] ?? 'active')); ?>')">
                                                 <i class="bi bi-pencil"></i>
                                             </button>
                                             <form method="POST" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this city?');">
@@ -267,6 +269,14 @@ $admin = getAdminInfo();
                                 <small class="form-text text-muted">Affects travel time calculation</small>
                             </div>
                         </div>
+                        
+                        <div class="mb-3">
+                            <label for="districtStatus" class="form-label">Status</label>
+                            <select class="form-select" id="districtStatus" name="status">
+                                <option value="active" selected>Active</option>
+                                <option value="inactive">Inactive</option>
+                            </select>
+                        </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
@@ -329,7 +339,7 @@ $admin = getAdminInfo();
             }, 100);
         }
 
-        function openEditModal(id, stateId, name, description, image, latitude, longitude, roadType) {
+        function openEditModal(id, stateId, name, description, image, latitude, longitude, roadType, status) {
             document.getElementById('modalTitle').textContent = 'Edit City';
             document.getElementById('submitText').textContent = 'Update City';
             document.getElementById('formAction').value = 'edit';
@@ -340,6 +350,7 @@ $admin = getAdminInfo();
             document.getElementById('districtLatitude').value = latitude !== null ? latitude : '';
             document.getElementById('districtLongitude').value = longitude !== null ? longitude : '';
             document.getElementById('districtRoadType').value = roadType || 'plain';
+            document.getElementById('districtStatus').value = status || 'active';
             
             var modal = new bootstrap.Modal(document.getElementById('districtModal'));
             modal.show();

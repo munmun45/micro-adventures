@@ -74,10 +74,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Family & Solo Travel Suitability
             $family_friendly = trim($_POST['family_friendly'] ?? '');
             $solo_traveler_safe = trim($_POST['solo_traveler_safe'] ?? '');
+            // Status, Verification & Priority
+            $status = trim($_POST['status'] ?? 'active');
+            $is_verified = trim($_POST['is_verified'] ?? 'no');
+            $priority_level = !empty($_POST['priority_level']) ? intval($_POST['priority_level']) : 3;
             
             if ($activity_type_id > 0) {
-                $stmt = $conn->prepare("INSERT INTO place_activities (place_id, activity_type_id, safety_info, safety_level, age_restriction, gender_restriction, medical_restrictions, open_time, close_time, available_months, ticket_price, difficulty_level, physical_effort, weather_dependency, monsoon_risk, cancellation_chance, safety_equipment_required, equipment_provided, guide_mandatory, operator_type, buffer_time_minutes, reporting_time, crowd_level, avg_waiting_time_minutes, min_age, max_age, nearest_medical_distance_km, emergency_support_level, stop_conditions, family_friendly, solo_traveler_safe) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-                $stmt->bind_param("iisssssssssssssssssssisissidssss", $place_id, $activity_type_id, $safety_info, $safety_level, $age_restriction, $gender_restriction, $medical_restrictions, $open_time, $close_time, $available_months, $ticket_price, $difficulty_level, $physical_effort, $weather_dependency, $monsoon_risk, $cancellation_chance, $safety_equipment_required, $equipment_provided, $guide_mandatory, $operator_type, $buffer_time_minutes, $reporting_time, $crowd_level, $avg_waiting_time_minutes, $min_age, $max_age, $nearest_medical_distance_km, $emergency_support_level, $stop_conditions, $family_friendly, $solo_traveler_safe);
+                $stmt = $conn->prepare("INSERT INTO place_activities (place_id, activity_type_id, safety_info, safety_level, age_restriction, gender_restriction, medical_restrictions, open_time, close_time, available_months, ticket_price, difficulty_level, physical_effort, weather_dependency, monsoon_risk, cancellation_chance, safety_equipment_required, equipment_provided, guide_mandatory, operator_type, buffer_time_minutes, reporting_time, crowd_level, avg_waiting_time_minutes, min_age, max_age, nearest_medical_distance_km, emergency_support_level, stop_conditions, family_friendly, solo_traveler_safe, status, is_verified, priority_level) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                $stmt->bind_param("iisssssssssssssssssssisissidssssssi", $place_id, $activity_type_id, $safety_info, $safety_level, $age_restriction, $gender_restriction, $medical_restrictions, $open_time, $close_time, $available_months, $ticket_price, $difficulty_level, $physical_effort, $weather_dependency, $monsoon_risk, $cancellation_chance, $safety_equipment_required, $equipment_provided, $guide_mandatory, $operator_type, $buffer_time_minutes, $reporting_time, $crowd_level, $avg_waiting_time_minutes, $min_age, $max_age, $nearest_medical_distance_km, $emergency_support_level, $stop_conditions, $family_friendly, $solo_traveler_safe, $status, $is_verified, $priority_level);
                 if ($stmt->execute()) {
                     $message = "Activity added successfully!";
                     $message_type = "success";
@@ -135,10 +139,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Family & Solo Travel Suitability
             $family_friendly = trim($_POST['family_friendly'] ?? '');
             $solo_traveler_safe = trim($_POST['solo_traveler_safe'] ?? '');
+            // Status, Verification & Priority
+            $status = trim($_POST['status'] ?? 'active');
+            $is_verified = trim($_POST['is_verified'] ?? 'no');
+            $priority_level = !empty($_POST['priority_level']) ? intval($_POST['priority_level']) : 3;
             
             if ($id > 0) {
-                $stmt = $conn->prepare("UPDATE place_activities SET safety_info = ?, safety_level = ?, age_restriction = ?, gender_restriction = ?, medical_restrictions = ?, open_time = ?, close_time = ?, available_months = ?, ticket_price = ?, difficulty_level = ?, physical_effort = ?, weather_dependency = ?, monsoon_risk = ?, cancellation_chance = ?, safety_equipment_required = ?, equipment_provided = ?, guide_mandatory = ?, operator_type = ?, buffer_time_minutes = ?, reporting_time = ?, crowd_level = ?, avg_waiting_time_minutes = ?, min_age = ?, max_age = ?, nearest_medical_distance_km = ?, emergency_support_level = ?, stop_conditions = ?, family_friendly = ?, solo_traveler_safe = ? WHERE id = ?");
-                $stmt->bind_param("ssssssssssssssssssssisissidssssi", $safety_info, $safety_level, $age_restriction, $gender_restriction, $medical_restrictions, $open_time, $close_time, $available_months, $ticket_price, $difficulty_level, $physical_effort, $weather_dependency, $monsoon_risk, $cancellation_chance, $safety_equipment_required, $equipment_provided, $guide_mandatory, $operator_type, $buffer_time_minutes, $reporting_time, $crowd_level, $avg_waiting_time_minutes, $min_age, $max_age, $nearest_medical_distance_km, $emergency_support_level, $stop_conditions, $family_friendly, $solo_traveler_safe, $id);
+                $stmt = $conn->prepare("UPDATE place_activities SET safety_info = ?, safety_level = ?, age_restriction = ?, gender_restriction = ?, medical_restrictions = ?, open_time = ?, close_time = ?, available_months = ?, ticket_price = ?, difficulty_level = ?, physical_effort = ?, weather_dependency = ?, monsoon_risk = ?, cancellation_chance = ?, safety_equipment_required = ?, equipment_provided = ?, guide_mandatory = ?, operator_type = ?, buffer_time_minutes = ?, reporting_time = ?, crowd_level = ?, avg_waiting_time_minutes = ?, min_age = ?, max_age = ?, nearest_medical_distance_km = ?, emergency_support_level = ?, stop_conditions = ?, family_friendly = ?, solo_traveler_safe = ?, status = ?, is_verified = ?, priority_level = ? WHERE id = ?");
+                $stmt->bind_param("ssssssssssssssssssssisissidssssssii", $safety_info, $safety_level, $age_restriction, $gender_restriction, $medical_restrictions, $open_time, $close_time, $available_months, $ticket_price, $difficulty_level, $physical_effort, $weather_dependency, $monsoon_risk, $cancellation_chance, $safety_equipment_required, $equipment_provided, $guide_mandatory, $operator_type, $buffer_time_minutes, $reporting_time, $crowd_level, $avg_waiting_time_minutes, $min_age, $max_age, $nearest_medical_distance_km, $emergency_support_level, $stop_conditions, $family_friendly, $solo_traveler_safe, $status, $is_verified, $priority_level, $id);
                 if ($stmt->execute()) {
                     $message = "Activity updated successfully!";
                     $message_type = "success";
@@ -631,6 +639,30 @@ $admin = getAdminInfo();
                                 </select>
                             </div>
                         </div>
+                        
+                        <!-- Status, Verification & Priority -->
+                        <hr class="my-3">
+                        <h6 class="mb-3"><i class="bi bi-gear"></i> Status, Verification & Priority</h6>
+                        <div class="row g-2">
+                            <div class="col-md-4 mb-2">
+                                <label for="activityStatus" class="form-label small fw-bold">Status</label>
+                                <select class="form-select form-select-sm" id="activityStatus" name="status">
+                                    <option value="active" selected>Active</option>
+                                    <option value="inactive">Inactive</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4 mb-2">
+                                <label for="activityIsVerified" class="form-label small fw-bold">Is Verified</label>
+                                <select class="form-select form-select-sm" id="activityIsVerified" name="is_verified">
+                                    <option value="no" selected>No</option>
+                                    <option value="yes">Yes</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4 mb-2">
+                                <label for="activityPriorityLevel" class="form-label small fw-bold">Priority Level</label>
+                                <input type="number" class="form-control form-control-sm" id="activityPriorityLevel" name="priority_level" value="3" placeholder="Default: 3">
+                            </div>
+                        </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
@@ -930,6 +962,30 @@ $admin = getAdminInfo();
                                 </select>
                             </div>
                         </div>
+                        
+                        <!-- Status, Verification & Priority -->
+                        <hr class="my-3">
+                        <h6 class="mb-3"><i class="bi bi-gear"></i> Status, Verification & Priority</h6>
+                        <div class="row g-2">
+                            <div class="col-md-4 mb-2">
+                                <label for="editActivityStatus" class="form-label small fw-bold">Status</label>
+                                <select class="form-select form-select-sm" id="editActivityStatus" name="status">
+                                    <option value="active">Active</option>
+                                    <option value="inactive">Inactive</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4 mb-2">
+                                <label for="editActivityIsVerified" class="form-label small fw-bold">Is Verified</label>
+                                <select class="form-select form-select-sm" id="editActivityIsVerified" name="is_verified">
+                                    <option value="no">No</option>
+                                    <option value="yes">Yes</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4 mb-2">
+                                <label for="editActivityPriorityLevel" class="form-label small fw-bold">Priority Level</label>
+                                <input type="number" class="form-control form-control-sm" id="editActivityPriorityLevel" name="priority_level" value="3" placeholder="Default: 3">
+                            </div>
+                        </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
@@ -1089,6 +1145,11 @@ $admin = getAdminInfo();
             // Family & Solo Travel Suitability
             document.getElementById('editActivityFamilyFriendly').value = activity.family_friendly || '';
             document.getElementById('editActivitySoloTravelerSafe').value = activity.solo_traveler_safe || '';
+            
+            // Status, Verification & Priority
+            document.getElementById('editActivityStatus').value = activity.status || 'active';
+            document.getElementById('editActivityIsVerified').value = activity.is_verified || 'no';
+            document.getElementById('editActivityPriorityLevel').value = activity.priority_level || '3';
             
             // Set available months
             $('.edit-month-checkbox').prop('checked', false);

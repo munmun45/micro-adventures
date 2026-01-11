@@ -15,10 +15,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $image = trim($_POST['image'] ?? '');
             $min_price_per_night = !empty($_POST['min_price_per_night']) ? floatval($_POST['min_price_per_night']) : null;
             $max_price_per_night = !empty($_POST['max_price_per_night']) ? floatval($_POST['max_price_per_night']) : null;
+            $status = trim($_POST['status'] ?? 'active');
             
             if (!empty($name)) {
-                $stmt = $conn->prepare("INSERT INTO hotel_types (name, description, image, min_price_per_night, max_price_per_night) VALUES (?, ?, ?, ?, ?)");
-                $stmt->bind_param("sssdd", $name, $description, $image, $min_price_per_night, $max_price_per_night);
+                $stmt = $conn->prepare("INSERT INTO hotel_types (name, description, image, min_price_per_night, max_price_per_night, status) VALUES (?, ?, ?, ?, ?, ?)");
+                $stmt->bind_param("sssdds", $name, $description, $image, $min_price_per_night, $max_price_per_night, $status);
                 if ($stmt->execute()) {
                     $message = "Hotel type added successfully!";
                     $message_type = "success";
@@ -39,10 +40,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $image = trim($_POST['image'] ?? '');
             $min_price_per_night = !empty($_POST['min_price_per_night']) ? floatval($_POST['min_price_per_night']) : null;
             $max_price_per_night = !empty($_POST['max_price_per_night']) ? floatval($_POST['max_price_per_night']) : null;
+            $status = trim($_POST['status'] ?? 'active');
             
             if ($id > 0 && !empty($name)) {
-                $stmt = $conn->prepare("UPDATE hotel_types SET name = ?, description = ?, image = ?, min_price_per_night = ?, max_price_per_night = ? WHERE id = ?");
-                $stmt->bind_param("sssddi", $name, $description, $image, $min_price_per_night, $max_price_per_night, $id);
+                $stmt = $conn->prepare("UPDATE hotel_types SET name = ?, description = ?, image = ?, min_price_per_night = ?, max_price_per_night = ?, status = ? WHERE id = ?");
+                $stmt->bind_param("sssddsi", $name, $description, $image, $min_price_per_night, $max_price_per_night, $status, $id);
                 if ($stmt->execute()) {
                     $message = "Hotel type updated successfully!";
                     $message_type = "success";
@@ -181,7 +183,7 @@ $admin = getAdminInfo();
                                     </td>
                                     <td>
                                         <div class="action-buttons">
-                                            <button type="button" class="btn-icon btn-edit" title="Edit" onclick="openEditModal(<?php echo $hotel['id']; ?>, '<?php echo htmlspecialchars(addslashes($hotel['name'])); ?>', '<?php echo htmlspecialchars(addslashes($hotel['description'] ?? '')); ?>', '<?php echo htmlspecialchars(addslashes($hotel['image'] ?? '')); ?>', <?php echo $min_price !== null ? $min_price : 'null'; ?>, <?php echo $max_price !== null ? $max_price : 'null'; ?>)">
+                                            <button type="button" class="btn-icon btn-edit" title="Edit" onclick="openEditModal(<?php echo $hotel['id']; ?>, '<?php echo htmlspecialchars(addslashes($hotel['name'])); ?>', '<?php echo htmlspecialchars(addslashes($hotel['description'] ?? '')); ?>', '<?php echo htmlspecialchars(addslashes($hotel['image'] ?? '')); ?>', <?php echo $min_price !== null ? $min_price : 'null'; ?>, <?php echo $max_price !== null ? $max_price : 'null'; ?>, '<?php echo htmlspecialchars(addslashes($hotel['status'] ?? 'active')); ?>')">
                                                 <i class="bi bi-pencil"></i>
                                             </button>
                                             <form method="POST" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this hotel type?');">
@@ -271,7 +273,7 @@ $admin = getAdminInfo();
             document.getElementById('hotelForm').reset();
         }
 
-        function openEditModal(id, name, description, image, minPrice, maxPrice) {
+        function openEditModal(id, name, description, image, minPrice, maxPrice, status) {
             document.getElementById('modalTitle').textContent = 'Edit Hotel Type';
             document.getElementById('submitText').textContent = 'Update Hotel Type';
             document.getElementById('formAction').value = 'edit';
@@ -281,6 +283,7 @@ $admin = getAdminInfo();
             document.getElementById('hotelImage').value = image;
             document.getElementById('hotelMinPrice').value = minPrice !== null ? minPrice : '';
             document.getElementById('hotelMaxPrice').value = maxPrice !== null ? maxPrice : '';
+            document.getElementById('hotelStatus').value = status || 'active';
             
             var modal = new bootstrap.Modal(document.getElementById('hotelModal'));
             modal.show();
