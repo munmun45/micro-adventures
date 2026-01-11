@@ -15,20 +15,40 @@ $admin = getAdminInfo();
         </div>
     </div>
 
-    <div class="sidebar-user">
-        <div class="user-avatar">
-            <i class="bi bi-person-circle"></i>
-        </div>
-        <div class="user-info">
-            <p class="user-name"><?php echo htmlspecialchars($admin['full_name'] ?? 'Admin'); ?></p>
-            <p class="user-email"><?php echo htmlspecialchars($admin['email'] ?? ''); ?></p>
-        </div>
-    </div>
+    
 
     <nav class="sidebar-nav">
         <a href="dashboard.php" class="nav-item <?php echo $current_page === 'dashboard.php' ? 'active' : ''; ?>">
             <i class="bi bi-speedometer2"></i>
             <span>Dashboard</span>
+        </a>
+        <a href="countries.php" class="nav-item <?php echo $current_page === 'countries.php' ? 'active' : ''; ?>">
+            <i class="bi bi-globe"></i>
+            <span>Countries</span>
+        </a>
+        <a href="states.php" class="nav-item <?php echo $current_page === 'states.php' ? 'active' : ''; ?>">
+            <i class="bi bi-geo-alt"></i>
+            <span>States</span>
+        </a>
+        <a href="districts.php" class="nav-item <?php echo $current_page === 'districts.php' ? 'active' : ''; ?>">
+            <i class="bi bi-geo"></i>
+            <span>Cities</span>
+        </a>
+        <a href="activities.php" class="nav-item <?php echo $current_page === 'activities.php' ? 'active' : ''; ?>">
+            <i class="bi bi-activity"></i>
+            <span>Activities</span>
+        </a>
+        <a href="hotels.php" class="nav-item <?php echo $current_page === 'hotels.php' ? 'active' : ''; ?>">
+            <i class="bi bi-building"></i>
+            <span>Hotels</span>
+        </a>
+        <a href="transport.php" class="nav-item <?php echo $current_page === 'transport.php' ? 'active' : ''; ?>">
+            <i class="bi bi-truck"></i>
+            <span>Transport</span>
+        </a>
+        <a href="places.php" class="nav-item <?php echo $current_page === 'places.php' ? 'active' : ''; ?>">
+            <i class="bi bi-geo-alt-fill"></i>
+            <span>Places</span>
         </a>
         <a href="change-password.php" class="nav-item <?php echo $current_page === 'change-password.php' ? 'active' : ''; ?>">
             <i class="bi bi-key"></i>
