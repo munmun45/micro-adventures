@@ -64,6 +64,67 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
                 $stmt->close();
             }
+        } elseif ($_POST['action'] === 'add_price_rule') {
+            $transport_type_id = intval($_POST['transport_type_id'] ?? 0);
+            $sub_type = trim($_POST['sub_type'] ?? '');
+            $min_cost_per_km = floatval($_POST['min_cost_per_km'] ?? 0);
+            $max_cost_per_km = floatval($_POST['max_cost_per_km'] ?? 0);
+            $notes = trim($_POST['notes'] ?? '');
+            $is_active = trim($_POST['is_active'] ?? 'yes');
+            
+            if ($transport_type_id > 0 && !empty($sub_type) && $min_cost_per_km > 0 && $max_cost_per_km > 0) {
+                $stmt = $conn->prepare("INSERT INTO transport_price_rules (transport_type_id, sub_type, min_cost_per_km, max_cost_per_km, notes, is_active) VALUES (?, ?, ?, ?, ?, ?)");
+                $stmt->bind_param("isddss", $transport_type_id, $sub_type, $min_cost_per_km, $max_cost_per_km, $notes, $is_active);
+                if ($stmt->execute()) {
+                    $message = "Price rule added successfully!";
+                    $message_type = "success";
+                    logActivity("Add Transport Price Rule", "Added price rule: $sub_type");
+                } else {
+                    $message = "Error adding price rule: " . $conn->error;
+                    $message_type = "error";
+                }
+                $stmt->close();
+            } else {
+                $message = "Please fill all required fields!";
+                $message_type = "error";
+            }
+        } elseif ($_POST['action'] === 'edit_price_rule') {
+            $id = intval($_POST['price_rule_id'] ?? 0);
+            $transport_type_id = intval($_POST['transport_type_id'] ?? 0);
+            $sub_type = trim($_POST['sub_type'] ?? '');
+            $min_cost_per_km = floatval($_POST['min_cost_per_km'] ?? 0);
+            $max_cost_per_km = floatval($_POST['max_cost_per_km'] ?? 0);
+            $notes = trim($_POST['notes'] ?? '');
+            $is_active = trim($_POST['is_active'] ?? 'yes');
+            
+            if ($id > 0 && $transport_type_id > 0 && !empty($sub_type) && $min_cost_per_km > 0 && $max_cost_per_km > 0) {
+                $stmt = $conn->prepare("UPDATE transport_price_rules SET transport_type_id = ?, sub_type = ?, min_cost_per_km = ?, max_cost_per_km = ?, notes = ?, is_active = ? WHERE id = ?");
+                $stmt->bind_param("isddssi", $transport_type_id, $sub_type, $min_cost_per_km, $max_cost_per_km, $notes, $is_active, $id);
+                if ($stmt->execute()) {
+                    $message = "Price rule updated successfully!";
+                    $message_type = "success";
+                    logActivity("Update Transport Price Rule", "Updated price rule: $sub_type");
+                } else {
+                    $message = "Error updating price rule: " . $conn->error;
+                    $message_type = "error";
+                }
+                $stmt->close();
+            }
+        } elseif ($_POST['action'] === 'delete_price_rule') {
+            $id = intval($_POST['price_rule_id'] ?? 0);
+            if ($id > 0) {
+                $stmt = $conn->prepare("DELETE FROM transport_price_rules WHERE id = ?");
+                $stmt->bind_param("i", $id);
+                if ($stmt->execute()) {
+                    $message = "Price rule deleted successfully!";
+                    $message_type = "success";
+                    logActivity("Delete Transport Price Rule", "Deleted price rule ID: $id");
+                } else {
+                    $message = "Error deleting price rule: " . $conn->error;
+                    $message_type = "error";
+                }
+                $stmt->close();
+            }
         }
     }
 }
@@ -73,6 +134,19 @@ $transports = [];
 $result = $conn->query("SELECT * FROM transport_types ORDER BY name");
 if ($result) {
     $transports = $result->fetch_all(MYSQLI_ASSOC);
+}
+
+// Handle AJAX request for price rules
+if (isset($_GET['get_price_rules'])) {
+    $transport_id = intval($_GET['get_price_rules']);
+    $result = $conn->query("SELECT * FROM transport_price_rules WHERE transport_type_id = $transport_id ORDER BY sub_type");
+    $price_rules = [];
+    if ($result) {
+        $price_rules = $result->fetch_all(MYSQLI_ASSOC);
+    }
+    header('Content-Type: application/json');
+    echo json_encode($price_rules);
+    exit;
 }
 
 // Get transport for editing
@@ -164,6 +238,9 @@ $admin = getAdminInfo();
                                             <button type="button" class="btn-icon btn-edit" title="Edit" onclick="openEditModal(<?php echo $transport['id']; ?>, '<?php echo htmlspecialchars(addslashes($transport['name'])); ?>', '<?php echo htmlspecialchars(addslashes($transport['description'] ?? '')); ?>', '<?php echo htmlspecialchars(addslashes($transport['image'] ?? '')); ?>')">
                                                 <i class="bi bi-pencil"></i>
                                             </button>
+                                            <button type="button" class="btn-icon btn-info" title="Manage Price Rules" onclick="openPriceRulesModal(<?php echo $transport['id']; ?>, '<?php echo htmlspecialchars(addslashes($transport['name'])); ?>')">
+                                                <i class="bi bi-currency-rupee"></i>
+                                            </button>
                                             <form method="POST" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this transport type?');">
                                                 <input type="hidden" name="action" value="delete">
                                                 <input type="hidden" name="id" value="<?php echo $transport['id']; ?>">
@@ -186,6 +263,7 @@ $admin = getAdminInfo();
                     <?php endif; ?>
                 </div>
             </div>
+
         </div>
     </div>
 
@@ -221,6 +299,148 @@ $admin = getAdminInfo();
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                         <button type="submit" class="btn btn-primary">
                             <i class="bi bi-check-circle"></i> <span id="submitText">Add Transport</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Price Rules Management Modal -->
+    <div class="modal fade" id="priceRulesModal" tabindex="-1" aria-labelledby="priceRulesModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="priceRulesModalLabel"><i class="bi bi-currency-rupee"></i> Manage Price Rules - <span id="priceRulesTransportName"></span></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" style="max-height: 70vh; overflow-y: auto;">
+                    <input type="hidden" id="currentTransportTypeId" value="">
+                    
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6 class="mb-0"><i class="bi bi-list-ul"></i> Price Rules</h6>
+                        <button type="button" class="btn btn-primary btn-sm" onclick="openAddPriceRuleModal()">
+                            <i class="bi bi-plus-circle"></i> Add New Price Rule
+                        </button>
+                    </div>
+                    
+                    <!-- Existing Price Rules List -->
+                    <div id="priceRulesList">
+                        <div class="text-center py-3">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Price Rule Modal -->
+    <div class="modal fade" id="addPriceRuleModal" tabindex="-1" aria-labelledby="addPriceRuleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addPriceRuleModalLabel"><i class="bi bi-plus-circle"></i> Add New Price Rule</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form method="POST" id="priceRuleForm">
+                    <div class="modal-body">
+                        <input type="hidden" name="action" value="add_price_rule">
+                        <input type="hidden" name="transport_type_id" id="addPriceRuleTransportTypeId" value="">
+                        
+                        <div class="mb-3">
+                            <label for="addPriceRuleSubType" class="form-label">Sub Type <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="addPriceRuleSubType" name="sub_type" placeholder="e.g., Ordinary Bus, AC Bus, Sleeper, 3AC" required>
+                            <small class="form-text text-muted">Examples: Ordinary, AC, Sleeper, 3AC, Petrol Bike, Diesel Car</small>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="addPriceRuleMinCost" class="form-label">Min Cost/km (₹) <span class="text-danger">*</span></label>
+                                <input type="number" step="0.01" class="form-control" id="addPriceRuleMinCost" name="min_cost_per_km" placeholder="1.20" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="addPriceRuleMaxCost" class="form-label">Max Cost/km (₹) <span class="text-danger">*</span></label>
+                                <input type="number" step="0.01" class="form-control" id="addPriceRuleMaxCost" name="max_cost_per_km" placeholder="1.60" required>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="addPriceRuleNotes" class="form-label">Notes</label>
+                            <textarea class="form-control" id="addPriceRuleNotes" name="notes" rows="2" placeholder="Additional information about this price rule"></textarea>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="addPriceRuleIsActive" class="form-label">Status</label>
+                            <select class="form-select" id="addPriceRuleIsActive" name="is_active">
+                                <option value="yes" selected>Active</option>
+                                <option value="no">Inactive</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-check-circle"></i> Add Price Rule
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Price Rule Modal -->
+    <div class="modal fade" id="editPriceRuleModal" tabindex="-1" aria-labelledby="editPriceRuleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editPriceRuleModalLabel"><i class="bi bi-pencil"></i> Edit Price Rule</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form method="POST" id="editPriceRuleForm">
+                    <div class="modal-body">
+                        <input type="hidden" name="action" value="edit_price_rule">
+                        <input type="hidden" name="price_rule_id" id="editPriceRuleId" value="">
+                        <input type="hidden" name="transport_type_id" id="editPriceRuleTransportTypeId" value="">
+                        
+                        <div class="mb-3">
+                            <label for="editPriceRuleSubType" class="form-label">Sub Type <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="editPriceRuleSubType" name="sub_type" required>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="editPriceRuleMinCost" class="form-label">Min Cost/km (₹) <span class="text-danger">*</span></label>
+                                <input type="number" step="0.01" class="form-control" id="editPriceRuleMinCost" name="min_cost_per_km" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="editPriceRuleMaxCost" class="form-label">Max Cost/km (₹) <span class="text-danger">*</span></label>
+                                <input type="number" step="0.01" class="form-control" id="editPriceRuleMaxCost" name="max_cost_per_km" required>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="editPriceRuleNotes" class="form-label">Notes</label>
+                            <textarea class="form-control" id="editPriceRuleNotes" name="notes" rows="2"></textarea>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="editPriceRuleIsActive" class="form-label">Status</label>
+                            <select class="form-select" id="editPriceRuleIsActive" name="is_active">
+                                <option value="yes">Active</option>
+                                <option value="no">Inactive</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-check-circle"></i> Update
                         </button>
                     </div>
                 </form>
@@ -268,6 +488,154 @@ $admin = getAdminInfo();
                     row.style.display = 'none';
                 }
             }
+        });
+
+        function openPriceRulesModal(transportId, transportName) {
+            document.getElementById('priceRulesTransportName').textContent = transportName;
+            document.getElementById('currentTransportTypeId').value = transportId;
+            
+            // Load existing price rules for this transport type
+            loadPriceRules(transportId);
+            
+            var modal = new bootstrap.Modal(document.getElementById('priceRulesModal'));
+            modal.show();
+        }
+
+        function openAddPriceRuleModal() {
+            const transportId = document.getElementById('currentTransportTypeId').value;
+            document.getElementById('addPriceRuleTransportTypeId').value = transportId;
+            document.getElementById('priceRuleForm').reset();
+            document.getElementById('addPriceRuleTransportTypeId').value = transportId;
+            
+            var modal = new bootstrap.Modal(document.getElementById('addPriceRuleModal'));
+            modal.show();
+        }
+
+        function loadPriceRules(transportId) {
+            const listDiv = document.getElementById('priceRulesList');
+            listDiv.innerHTML = '<div class="text-center py-3"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div></div>';
+            
+            // Fetch price rules via AJAX
+            fetch('transport.php?get_price_rules=' + transportId)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.length === 0) {
+                        listDiv.innerHTML = '<div class="empty-state"><i class="bi bi-inbox"></i><p>No price rules found. Add your first price rule above.</p></div>';
+                        return;
+                    }
+                    
+                    let html = '<div class="table-responsive"><table class="table table-sm table-bordered">';
+                    html += '<thead><tr><th>Sub Type</th><th>Min Cost/km</th><th>Max Cost/km</th><th>Notes</th><th>Status</th><th>Actions</th></tr></thead>';
+                    html += '<tbody>';
+                    
+                    data.forEach(rule => {
+                        html += '<tr>';
+                        html += '<td><strong>' + escapeHtml(rule.sub_type) + '</strong></td>';
+                        html += '<td>₹' + parseFloat(rule.min_cost_per_km).toFixed(2) + '</td>';
+                        html += '<td>₹' + parseFloat(rule.max_cost_per_km).toFixed(2) + '</td>';
+                        html += '<td>' + escapeHtml(rule.notes || '-') + '</td>';
+                        html += '<td>' + (rule.is_active === 'yes' ? '<span class="badge bg-success">Active</span>' : '<span class="badge bg-secondary">Inactive</span>') + '</td>';
+                        html += '<td>';
+                        html += '<button type="button" class="btn btn-sm btn-outline-primary me-1" onclick="openEditPriceRuleModal(' + escapeHtml(JSON.stringify(rule)) + ')" title="Edit"><i class="bi bi-pencil"></i></button>';
+                        html += '<form method="POST" style="display:inline;" onsubmit="return confirm(\'Are you sure you want to delete this price rule?\');">';
+                        html += '<input type="hidden" name="action" value="delete_price_rule">';
+                        html += '<input type="hidden" name="price_rule_id" value="' + rule.id + '">';
+                        html += '<button type="submit" class="btn btn-sm btn-outline-danger" title="Delete"><i class="bi bi-trash"></i></button>';
+                        html += '</form>';
+                        html += '</td>';
+                        html += '</tr>';
+                    });
+                    
+                    html += '</tbody></table></div>';
+                    listDiv.innerHTML = html;
+                })
+                .catch(error => {
+                    listDiv.innerHTML = '<div class="alert alert-danger">Error loading price rules. Please refresh the page.</div>';
+                    console.error('Error:', error);
+                });
+        }
+
+        function openEditPriceRuleModal(rule) {
+            document.getElementById('editPriceRuleId').value = rule.id;
+            document.getElementById('editPriceRuleTransportTypeId').value = rule.transport_type_id;
+            document.getElementById('editPriceRuleSubType').value = rule.sub_type || '';
+            document.getElementById('editPriceRuleMinCost').value = rule.min_cost_per_km || '';
+            document.getElementById('editPriceRuleMaxCost').value = rule.max_cost_per_km || '';
+            document.getElementById('editPriceRuleNotes').value = rule.notes || '';
+            document.getElementById('editPriceRuleIsActive').value = rule.is_active || 'yes';
+            
+            var modal = new bootstrap.Modal(document.getElementById('editPriceRuleModal'));
+            modal.show();
+        }
+
+        function escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return String(text).replace(/[&<>"']/g, m => map[m]);
+        }
+
+        // Handle form submission for add price rule
+        document.getElementById('priceRuleForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            
+            fetch('transport.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.text())
+            .then(data => {
+                // Close add modal
+                const addModal = bootstrap.Modal.getInstance(document.getElementById('addPriceRuleModal'));
+                addModal.hide();
+                
+                // Reload price rules list
+                const transportId = document.getElementById('currentTransportTypeId').value;
+                loadPriceRules(transportId);
+                
+                // Show success message
+                setTimeout(() => {
+                    window.location.reload();
+                }, 500);
+            })
+            .catch(error => {
+                alert('Error adding price rule. Please try again.');
+                console.error('Error:', error);
+            });
+        });
+
+        // Handle form submission for edit price rule
+        document.getElementById('editPriceRuleForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            
+            fetch('transport.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.text())
+            .then(data => {
+                // Close edit modal and reload price rules
+                const editModal = bootstrap.Modal.getInstance(document.getElementById('editPriceRuleModal'));
+                editModal.hide();
+                
+                const transportId = document.getElementById('currentTransportTypeId').value;
+                loadPriceRules(transportId);
+                
+                // Show success message
+                setTimeout(() => {
+                    window.location.reload();
+                }, 500);
+            })
+            .catch(error => {
+                alert('Error updating price rule. Please try again.');
+                console.error('Error:', error);
+            });
         });
     </script>
 </body>

@@ -92,6 +92,8 @@ CREATE TABLE IF NOT EXISTS hotel_types (
     name VARCHAR(100) NOT NULL,
     description TEXT,
     image VARCHAR(255),
+    min_price_per_night DECIMAL(10,2),
+    max_price_per_night DECIMAL(10,2),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -102,6 +104,21 @@ CREATE TABLE IF NOT EXISTS transport_types (
     description TEXT,
     image VARCHAR(255),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Transport Price Rules Table
+CREATE TABLE IF NOT EXISTS transport_price_rules (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    transport_type_id INT NOT NULL,
+    sub_type VARCHAR(50) NOT NULL,
+    min_cost_per_km DECIMAL(6,2) NOT NULL,
+    max_cost_per_km DECIMAL(6,2) NOT NULL,
+    notes TEXT,
+    is_active ENUM('yes','no') DEFAULT 'yes',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (transport_type_id)
+        REFERENCES transport_types(id)
+        ON DELETE CASCADE
 );
 
 -- Places Table
@@ -327,6 +344,19 @@ INSERT INTO transport_types (name, description, image) VALUES
 ('Auto Rickshaw', 'Traditional three-wheeler auto rickshaws for short-distance travel. Experience local transportation in an authentic way.', 'https://images.unsplash.com/photo-1558980663-3685c1d673c8'),
 ('Boat', 'Water transport including ferries, boats, and cruises. Perfect for island hopping, river crossings, and scenic water journeys.', 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e'),
 ('Helicopter', 'Helicopter tours and transfers for unique aerial views and quick access to remote locations. Experience breathtaking landscapes from above.', 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05');
+
+-- Insert Transport Price Rules (India-Realistic Pricing)
+INSERT INTO transport_price_rules (transport_type_id, sub_type, min_cost_per_km, max_cost_per_km, notes) VALUES
+-- Bus (assuming Bus is id=1)
+(1, 'Ordinary Bus', 1.20, 1.60, 'Non-AC bus service for budget travelers'),
+(1, 'AC Bus', 2.50, 3.50, 'Air-conditioned bus with comfortable seating'),
+-- Train (assuming Train is id=4)
+(4, 'Sleeper', 0.50, 0.80, 'Sleeper class train tickets'),
+(4, '3AC', 1.20, 1.80, '3-tier AC train compartment'),
+-- Bike (assuming Bike is id=3)
+(3, 'Petrol Bike', 2.00, 3.00, 'Motorcycle rental with fuel cost'),
+-- Car (assuming Car is id=2)
+(2, 'Petrol Car', 7.00, 10.00, 'Car rental with fuel cost included');
 
 -- Insert Sample Places
 INSERT INTO places (city_id, name, description, image, security_info, night_travel_safety, safety_level, religion_restrictions, best_time_of_day, avg_visit_time_hours, crowd_level, avg_waiting_time_minutes, weather_dependency, monsoon_risk, sudden_closure_risk, child_friendly, senior_friendly, physical_effort, nearest_hospital_distance_km, police_response_level, digital_amenities, mobile_network, internet_availability, experience_score, priority_level) VALUES

@@ -13,10 +13,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $name = trim($_POST['name'] ?? '');
             $description = trim($_POST['description'] ?? '');
             $image = trim($_POST['image'] ?? '');
+            $min_price_per_night = !empty($_POST['min_price_per_night']) ? floatval($_POST['min_price_per_night']) : null;
+            $max_price_per_night = !empty($_POST['max_price_per_night']) ? floatval($_POST['max_price_per_night']) : null;
             
             if (!empty($name)) {
-                $stmt = $conn->prepare("INSERT INTO hotel_types (name, description, image) VALUES (?, ?, ?)");
-                $stmt->bind_param("sss", $name, $description, $image);
+                $stmt = $conn->prepare("INSERT INTO hotel_types (name, description, image, min_price_per_night, max_price_per_night) VALUES (?, ?, ?, ?, ?)");
+                $stmt->bind_param("sssdd", $name, $description, $image, $min_price_per_night, $max_price_per_night);
                 if ($stmt->execute()) {
                     $message = "Hotel type added successfully!";
                     $message_type = "success";
@@ -35,10 +37,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $name = trim($_POST['name'] ?? '');
             $description = trim($_POST['description'] ?? '');
             $image = trim($_POST['image'] ?? '');
+            $min_price_per_night = !empty($_POST['min_price_per_night']) ? floatval($_POST['min_price_per_night']) : null;
+            $max_price_per_night = !empty($_POST['max_price_per_night']) ? floatval($_POST['max_price_per_night']) : null;
             
             if ($id > 0 && !empty($name)) {
-                $stmt = $conn->prepare("UPDATE hotel_types SET name = ?, description = ?, image = ? WHERE id = ?");
-                $stmt->bind_param("sssi", $name, $description, $image, $id);
+                $stmt = $conn->prepare("UPDATE hotel_types SET name = ?, description = ?, image = ?, min_price_per_night = ?, max_price_per_night = ? WHERE id = ?");
+                $stmt->bind_param("sssddi", $name, $description, $image, $min_price_per_night, $max_price_per_night, $id);
                 if ($stmt->execute()) {
                     $message = "Hotel type updated successfully!";
                     $message_type = "success";
@@ -143,6 +147,7 @@ $admin = getAdminInfo();
                                     <th>Image</th>
                                     <th>Name</th>
                                     <th>Description</th>
+                                    <th>Price/Night</th>
                                     <th>Actions</th>
                                 </tr>
                             </thead>
@@ -160,8 +165,23 @@ $admin = getAdminInfo();
                                     <td><strong><?php echo htmlspecialchars($hotel['name']); ?></strong></td>
                                     <td><?php echo htmlspecialchars(substr($hotel['description'] ?? '', 0, 100)); ?><?php echo strlen($hotel['description'] ?? '') > 100 ? '...' : ''; ?></td>
                                     <td>
+                                        <?php 
+                                        $min_price = $hotel['min_price_per_night'] ?? null;
+                                        $max_price = $hotel['max_price_per_night'] ?? null;
+                                        if ($min_price !== null && $max_price !== null) {
+                                            echo '₹' . number_format($min_price, 2) . ' - ₹' . number_format($max_price, 2);
+                                        } elseif ($min_price !== null) {
+                                            echo '₹' . number_format($min_price, 2) . '+';
+                                        } elseif ($max_price !== null) {
+                                            echo 'Up to ₹' . number_format($max_price, 2);
+                                        } else {
+                                            echo '<span class="text-muted">Not set</span>';
+                                        }
+                                        ?>
+                                    </td>
+                                    <td>
                                         <div class="action-buttons">
-                                            <button type="button" class="btn-icon btn-edit" title="Edit" onclick="openEditModal(<?php echo $hotel['id']; ?>, '<?php echo htmlspecialchars(addslashes($hotel['name'])); ?>', '<?php echo htmlspecialchars(addslashes($hotel['description'] ?? '')); ?>', '<?php echo htmlspecialchars(addslashes($hotel['image'] ?? '')); ?>')">
+                                            <button type="button" class="btn-icon btn-edit" title="Edit" onclick="openEditModal(<?php echo $hotel['id']; ?>, '<?php echo htmlspecialchars(addslashes($hotel['name'])); ?>', '<?php echo htmlspecialchars(addslashes($hotel['description'] ?? '')); ?>', '<?php echo htmlspecialchars(addslashes($hotel['image'] ?? '')); ?>', <?php echo $min_price !== null ? $min_price : 'null'; ?>, <?php echo $max_price !== null ? $max_price : 'null'; ?>)">
                                                 <i class="bi bi-pencil"></i>
                                             </button>
                                             <form method="POST" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this hotel type?');">
@@ -216,6 +236,17 @@ $admin = getAdminInfo();
                             <label for="hotelImage" class="form-label">Image URL</label>
                             <input type="url" class="form-control" id="hotelImage" name="image" placeholder="https://example.com/image.jpg">
                         </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="hotelMinPrice" class="form-label">Min Price/Night (₹)</label>
+                                <input type="number" step="0.01" class="form-control" id="hotelMinPrice" name="min_price_per_night" placeholder="e.g., 500.00">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="hotelMaxPrice" class="form-label">Max Price/Night (₹)</label>
+                                <input type="number" step="0.01" class="form-control" id="hotelMaxPrice" name="max_price_per_night" placeholder="e.g., 5000.00">
+                            </div>
+                        </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
@@ -240,7 +271,7 @@ $admin = getAdminInfo();
             document.getElementById('hotelForm').reset();
         }
 
-        function openEditModal(id, name, description, image) {
+        function openEditModal(id, name, description, image, minPrice, maxPrice) {
             document.getElementById('modalTitle').textContent = 'Edit Hotel Type';
             document.getElementById('submitText').textContent = 'Update Hotel Type';
             document.getElementById('formAction').value = 'edit';
@@ -248,6 +279,8 @@ $admin = getAdminInfo();
             document.getElementById('hotelName').value = name;
             document.getElementById('hotelDescription').value = description;
             document.getElementById('hotelImage').value = image;
+            document.getElementById('hotelMinPrice').value = minPrice !== null ? minPrice : '';
+            document.getElementById('hotelMaxPrice').value = maxPrice !== null ? maxPrice : '';
             
             var modal = new bootstrap.Modal(document.getElementById('hotelModal'));
             modal.show();
