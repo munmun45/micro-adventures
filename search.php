@@ -321,7 +321,7 @@ include 'includes/sidebar.php';
                     <?php echo count($places); ?> place(s) found
                 </p>
             </div>
-            <a href="index.php" class="text-sm text-[#009688] hover:underline flex items-center gap-1">
+            <a href="index.php" class="text-sm text-[#009688] flex items-center gap-1">
                 <i class="bi bi-arrow-left"></i> Back
             </a>
         </div>
@@ -329,7 +329,7 @@ include 'includes/sidebar.php';
 </div>
 
 <!-- Places Container -->
-<section class="max-w-6xl mx-auto px-4 py-4 sm:py-6 space-y-6 pb-20">
+<section class="max-w-6xl mx-auto px-4 py-4 sm:py-6 space-y-6 pb-24 sm:pb-28">
     <?php if (empty($places)): ?>
         <div class="text-center py-12">
             <i class="bi bi-search text-4xl text-gray-300 mb-4"></i>
@@ -349,12 +349,12 @@ include 'includes/sidebar.php';
             <?php if (isset($group['state_name'])): ?>
                 <!-- State Group Header - Compact with Background Image -->
                 <div class="mb-2 mt-4 first:mt-0">
-                    <button id="btn-<?php echo $group_id; ?>" onclick="toggleGroup('<?php echo $group_id; ?>')" class="w-full relative h-20 sm:h-24 rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 text-left group">
+                    <button id="btn-<?php echo $group_id; ?>" onclick="toggleGroup('<?php echo $group_id; ?>')" class="w-full relative h-20 sm:h-24 rounded-xl overflow-hidden shadow-lg transition-all duration-300 text-left group">
                         <!-- Background Image -->
                         <div class="absolute inset-0">
                             <img src="<?php echo htmlspecialchars($header_image); ?>" 
                                  alt="<?php echo htmlspecialchars($group['state_name']); ?>"
-                                 class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                                 class="w-full h-full object-cover transition-transform duration-500">
                             <div class="absolute inset-0 bg-black/60"></div>
                         </div>
                         <!-- Content -->
@@ -382,12 +382,12 @@ include 'includes/sidebar.php';
             <?php elseif (isset($group['city_name'])): ?>
                 <!-- City Group Header - Compact with Background Image -->
                 <div class="mb-2 mt-4 first:mt-0">
-                    <button id="btn-<?php echo $group_id; ?>" onclick="toggleGroup('<?php echo $group_id; ?>')" class="w-full relative h-20 sm:h-24 rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 text-left group">
+                    <button id="btn-<?php echo $group_id; ?>" onclick="toggleGroup('<?php echo $group_id; ?>')" class="w-full relative h-20 sm:h-24 rounded-xl overflow-hidden shadow-lg transition-all duration-300 text-left group">
                         <!-- Background Image -->
                         <div class="absolute inset-0">
                             <img src="<?php echo htmlspecialchars($header_image); ?>" 
                                  alt="<?php echo htmlspecialchars($group['city_name']); ?>"
-                                 class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                                 class="w-full h-full object-cover transition-transform duration-500">
                             <div class="absolute inset-0 bg-black/60"></div>
                         </div>
                         <!-- Content -->
@@ -421,14 +421,30 @@ include 'includes/sidebar.php';
                     $is_best_month = isset($place['is_best_month']) && $place['is_best_month'] == 1;
                     ?>
                     <!-- Premium Place Card - Compact Design -->
-                    <div class="bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden group">
-                        <a href="destination-details.php?id=<?php echo $place['id']; ?>" class="block">
+                    <div class="bg-white rounded-2xl shadow-md transition-all duration-300 overflow-hidden group place-card relative cursor-pointer" 
+                         data-place-id="<?php echo $place['id']; ?>"
+                         data-city-id="<?php echo $place['city_id']; ?>"
+                         data-state-id="<?php echo $place['state_id']; ?>"
+                         data-price-min="<?php echo $place['ticket_price_min'] ?? 0; ?>"
+                         data-price-max="<?php echo $place['ticket_price_max'] ?? 0; ?>"
+                         onclick="handleCardClick(<?php echo $place['id']; ?>, event)">
+                        <!-- Checkbox for Place Selection -->
+                        <div class="absolute top-3 right-3 z-20">
+                            <label class="custom-checkbox-container cursor-pointer" onclick="event.stopPropagation();">
+                                <input type="checkbox" 
+                                       class="place-checkbox" 
+                                       id="place-<?php echo $place['id']; ?>"
+                                       data-place-id="<?php echo $place['id']; ?>"
+                                       onclick="togglePlaceSelection(<?php echo $place['id']; ?>, event)">
+                                <span class="checkmark"></span>
+                            </label>
+                        </div>
                             <div class="flex flex-col sm:flex-row">
-                                <!-- Image Section - Reduced Height -->
-                                <div class="sm:w-2/5 relative h-32 sm:h-36 overflow-hidden bg-gray-200">
+                                    <!-- Image Section - Reduced Height -->
+                                    <div class="sm:w-2/5 relative h-32 sm:h-36 overflow-hidden bg-gray-200">
                                     <img src="<?php echo htmlspecialchars($place['image'] ?: 'https://images.unsplash.com/photo-1501785888041-af3ef285b470'); ?>" 
                                          alt="<?php echo htmlspecialchars($place['name']); ?>"
-                                         class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                                         class="w-full h-full object-cover transition-transform duration-500">
                                     <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent"></div>
                                     <div class="absolute bottom-3 left-3 right-3">
 
@@ -517,7 +533,46 @@ include 'includes/sidebar.php';
                                                 </h4>
                                                 <div class="flex gap-2.5 overflow-x-auto pb-2 custom-scrollbar">
                                                     <?php foreach ($place_activities as $activity): ?>
-                                                        <div class="activity-card min-w-[180px] sm:min-w-[200px] bg-white rounded-xl p-2 shadow-sm hover:shadow-md transition-all shrink-0" style="border: 1px solid #1b191747;">
+                                                        <?php
+                                                        // Parse activity price (min and max for ranges)
+                                                        $activity_price_min = 0;
+                                                        $activity_price_max = 0;
+                                                        $activity_price_str = trim($activity['ticket_price'] ?? '');
+                                                        if ($activity_price_str && strtoupper($activity_price_str) !== 'FREE') {
+                                                            // Extract numbers from price string (e.g., "₹500" or "500" or "₹500-1000" or "₹500 to ₹1000")
+                                                            preg_match_all('/\d+/', $activity_price_str, $matches);
+                                                            if (!empty($matches[0])) {
+                                                                $numbers = array_map('floatval', $matches[0]);
+                                                                // If range, use first as min and last as max; otherwise use same for both
+                                                                if (count($numbers) > 1) {
+                                                                    $activity_price_min = $numbers[0];
+                                                                    $activity_price_max = $numbers[count($numbers) - 1];
+                                                                } else {
+                                                                    $activity_price_min = $numbers[0];
+                                                                    $activity_price_max = $numbers[0];
+                                                                }
+                                                            }
+                                                        }
+                                                        ?>
+                                                        <div class="activity-card min-w-[180px] sm:min-w-[200px] bg-white rounded-xl p-2 shadow-sm shrink-0 relative cursor-pointer" 
+                                                             style="border: 1px solid #1b191747; background: white;"
+                                                             data-activity-id="<?php echo $activity['activity_type_id']; ?>"
+                                                             data-place-id="<?php echo $place['id']; ?>"
+                                                             data-activity-price-min="<?php echo $activity_price_min; ?>"
+                                                             data-activity-price-max="<?php echo $activity_price_max; ?>"
+                                                             onclick="handleActivityCardClick(<?php echo $activity['activity_type_id']; ?>, <?php echo $place['id']; ?>, event)">
+                                                            <!-- Activity Checkbox -->
+                                                            <div class="absolute top-2 right-2 z-10">
+                                                                <label class="custom-checkbox-container-small cursor-pointer" onclick="event.stopPropagation();">
+                                                                    <input type="checkbox" 
+                                                                           class="activity-checkbox" 
+                                                                           id="activity-<?php echo $activity['activity_type_id']; ?>-<?php echo $place['id']; ?>"
+                                                                           data-activity-id="<?php echo $activity['activity_type_id']; ?>"
+                                                                           data-place-id="<?php echo $place['id']; ?>"
+                                                                           onclick="toggleActivitySelection(<?php echo $activity['activity_type_id']; ?>, <?php echo $place['id']; ?>, event)">
+                                                                    <span class="checkmark-small"></span>
+                                                                </label>
+                                                            </div>
                                                             <div class="flex gap-2.5">
                                                                 <div class="w-12 h-12 rounded-lg overflow-hidden shrink-0">
                                                                     <img src="<?php echo htmlspecialchars($activity['activity_image']); ?>" 
@@ -567,20 +622,93 @@ include 'includes/sidebar.php';
                                     <!-- Action Button - Compact -->
                                     <div class="pt-3 mt-3 border-t border-gray-100">
                                         <div class="flex items-center justify-end">
-                                            <a href="destination-details.php?id=<?php echo $place['id']; ?>" onclick="event.stopPropagation();" class="text-xs font-semibold text-[#009688] flex items-center gap-1.5 hover:gap-2 transition-all cursor-pointer hover:text-[#00796b]">
+                                            <a href="destination-details.php?id=<?php echo $place['id']; ?>" onclick="event.stopPropagation();" class="text-xs font-semibold text-[#009688] flex items-center gap-1.5 transition-all cursor-pointer">
                                                 View Details <i class="bi bi-arrow-right"></i>
                                             </a>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                        </a>
                     </div>
                 <?php endforeach; ?>
             </div>
         <?php endforeach; ?>
     <?php endif; ?>
 </section>
+
+<!-- Selection Summary Navbar -->
+<div id="selection-navbar" class="fixed bottom-0 left-0 right-0 bg-white border-t-2 border-[#009688] shadow-2xl z-50 transform translate-y-full transition-transform duration-300">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-3 sm:py-4">
+        <!-- Mobile: Stacked Layout -->
+        <div class="flex flex-col md:hidden gap-3">
+            <!-- Row 1: Summary Stats -->
+            <div class="flex items-center gap-2 text-xs justify-center overflow-x-auto pb-1">
+                <div class="flex items-center gap-1.5 bg-gray-50 px-2 py-1 rounded-lg shrink-0">
+                    <i class="bi bi-geo-alt text-[#009688] text-sm"></i>
+                    <span class="font-semibold text-gray-700"><span id="selected-places-count" class="text-[#009688]">0</span> Places</span>
+                </div>
+                <div class="flex items-center gap-1.5 bg-gray-50 px-2 py-1 rounded-lg shrink-0">
+                    <i class="bi bi-pin-map text-[#009688] text-sm"></i>
+                    <span class="font-semibold text-gray-700"><span id="selected-cities-count" class="text-[#009688]">0</span> Cities</span>
+                </div>
+                <div class="flex items-center gap-1.5 bg-gray-50 px-2 py-1 rounded-lg shrink-0">
+                    <i class="bi bi-map text-[#009688] text-sm"></i>
+                    <span class="font-semibold text-gray-700"><span id="selected-states-count" class="text-[#009688]">0</span> States</span>
+                </div>
+                <div class="flex items-center gap-1.5 bg-gray-50 px-2 py-1 rounded-lg shrink-0">
+                    <i class="bi bi-activity text-[#009688] text-sm"></i>
+                    <span class="font-semibold text-gray-700"><span id="selected-activities-count" class="text-[#009688]">0</span> Activities</span>
+                </div>
+            </div>
+            <!-- Row 2: Price and Button -->
+            <div class="flex items-center justify-between gap-3">
+                <div class="flex items-center gap-1.5 bg-[#009688]/10 px-3 py-2 rounded-lg flex-1">
+                    <i class="bi bi-cash-coin text-[#009688] text-sm"></i>
+                    <span class="font-semibold text-gray-900 text-sm" id="price-range">₹0 - ₹0</span>
+                </div>
+                <button onclick="proceedToNext()" 
+                        class="px-6 py-2.5 bg-[#009688] text-white rounded-lg font-semibold text-sm transition-colors flex items-center justify-center gap-2 shadow-lg shrink-0">
+                    Next <i class="bi bi-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Tablet & Desktop: Single Row Layout -->
+        <div class="hidden md:flex items-center justify-between gap-4 lg:gap-6">
+            <!-- Summary Stats -->
+            <div class="flex items-center gap-3 lg:gap-4 text-sm lg:text-base flex-1">
+                <div class="flex items-center gap-2 bg-gray-50 px-3 py-1.5 rounded-lg">
+                    <i class="bi bi-geo-alt text-[#009688] text-base"></i>
+                    <span class="font-semibold text-gray-700"><span id="selected-places-count-md" class="text-[#009688]">0</span> Places</span>
+                </div>
+                <div class="flex items-center gap-2 bg-gray-50 px-3 py-1.5 rounded-lg">
+                    <i class="bi bi-pin-map text-[#009688] text-base"></i>
+                    <span class="font-semibold text-gray-700"><span id="selected-cities-count-md" class="text-[#009688]">0</span> Cities</span>
+                </div>
+                <div class="flex items-center gap-2 bg-gray-50 px-3 py-1.5 rounded-lg">
+                    <i class="bi bi-map text-[#009688] text-base"></i>
+                    <span class="font-semibold text-gray-700"><span id="selected-states-count-md" class="text-[#009688]">0</span> States</span>
+                </div>
+                <div class="flex items-center gap-2 bg-gray-50 px-3 py-1.5 rounded-lg">
+                    <i class="bi bi-activity text-[#009688] text-base"></i>
+                    <span class="font-semibold text-gray-700"><span id="selected-activities-count-md" class="text-[#009688]">0</span> Activities</span>
+                </div>
+            </div>
+            
+            <!-- Price and Button -->
+            <div class="flex items-center gap-4">
+                <div class="flex items-center gap-2 bg-[#009688]/10 px-4 py-2 rounded-lg">
+                    <i class="bi bi-cash-coin text-[#009688] text-base"></i>
+                    <span class="font-semibold text-gray-900 text-base lg:text-lg" id="price-range-md">₹0 - ₹0</span>
+                </div>
+                <button onclick="proceedToNext()" 
+                        class="px-6 lg:px-8 py-2.5 lg:py-3 bg-[#009688] text-white rounded-lg font-semibold text-sm lg:text-base transition-colors flex items-center justify-center gap-2 shadow-lg hover:bg-[#00796b] shrink-0">
+                    Next <i class="bi bi-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <style>
 /* Smooth Collapse Animation */
@@ -604,21 +732,515 @@ include 'includes/sidebar.php';
     opacity: 0;
     margin-bottom: 0;
 }
+
+/* Place Card Selection */
+.place-card.selected {
+    border: 2px solid #009688;
+    box-shadow: 0 0 0 3px rgba(0, 150, 136, 0.1);
+}
+
+.activity-card.selected {
+    border: 2px solid #009688 !important;
+    box-shadow: 0 0 0 2px rgba(0, 150, 136, 0.2), 0 4px 12px rgba(0, 150, 136, 0.15) !important;
+}
+
+/* Custom Checkbox Styles - Modern Design */
+.custom-checkbox-container {
+    position: relative;
+    display: inline-block;
+    width: 28px;
+    height: 28px;
+}
+
+.custom-checkbox-container input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    height: 0;
+    width: 0;
+}
+
+.checkmark {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 28px;
+    width: 28px;
+    background: white;
+    border: 2.5px solid #d1d5db;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+
+.custom-checkbox-container input:checked ~ .checkmark {
+    background: linear-gradient(135deg, #009688 0%, #00796b 100%);
+    border-color: #009688;
+    box-shadow: 0 4px 16px rgba(0, 150, 136, 0.4);
+}
+
+.checkmark:after {
+    content: "";
+    position: absolute;
+    display: none;
+    left: 9px;
+    top: 5px;
+    width: 6px;
+    height: 12px;
+    border: solid white;
+    border-width: 0 3px 3px 0;
+    transform: rotate(45deg);
+}
+
+.custom-checkbox-container input:checked ~ .checkmark:after {
+    display: block;
+}
+
+
+/* Small Checkbox for Activities */
+.custom-checkbox-container-small {
+    position: relative;
+    display: inline-block;
+    width: 22px;
+    height: 22px;
+}
+
+.custom-checkbox-container-small input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    height: 0;
+    width: 0;
+}
+
+.checkmark-small {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 22px;
+    width: 22px;
+    background: white;
+    border: 2px solid #d1d5db;
+    border-radius: 6px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+
+.custom-checkbox-container-small input:checked ~ .checkmark-small {
+    background: linear-gradient(135deg, #009688 0%, #00796b 100%);
+    border-color: #009688;
+    box-shadow: 0 3px 12px rgba(0, 150, 136, 0.4);
+}
+
+.checkmark-small:after {
+    content: "";
+    position: absolute;
+    display: none;
+    left: 7px;
+    top: 3px;
+    width: 5px;
+    height: 10px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+}
+
+.custom-checkbox-container-small input:checked ~ .checkmark-small:after {
+    display: block;
+}
+
+/* Selection Navbar */
+#selection-navbar.show {
+    transform: translateY(0);
+}
 </style>
 
 <script>
-// Accordion/Collapse functionality - Only one group open at a time with smooth animations
-let openGroupId = null;
+// Selection Management
+let selectedPlaces = new Set();
+let selectedActivities = new Set();
+let placeDataMap = {}; // Store place data for calculations
+let activityDataMap = {}; // Store activity data for calculations
 
-// Open first group by default
+// Initialize place data from DOM
 document.addEventListener('DOMContentLoaded', function() {
+    const placeCards = document.querySelectorAll('.place-card');
+    placeCards.forEach(card => {
+        const placeId = parseInt(card.dataset.placeId);
+        placeDataMap[placeId] = {
+            id: placeId,
+            cityId: parseInt(card.dataset.cityId),
+            stateId: parseInt(card.dataset.stateId),
+            priceMin: parseFloat(card.dataset.priceMin) || 0,
+            priceMax: parseFloat(card.dataset.priceMax) || 0
+        };
+    });
+    
+    // Initialize activity data from DOM
+    const activityCards = document.querySelectorAll('.activity-card');
+    activityCards.forEach(card => {
+        const activityId = parseInt(card.dataset.activityId);
+        const placeId = parseInt(card.dataset.placeId);
+        const activityPriceMin = parseFloat(card.dataset.activityPriceMin) || 0;
+        const activityPriceMax = parseFloat(card.dataset.activityPriceMax) || 0;
+        const activityKey = activityId + '-' + placeId;
+        activityDataMap[activityKey] = {
+            activityId: activityId,
+            placeId: placeId,
+            priceMin: activityPriceMin,
+            priceMax: activityPriceMax
+        };
+    });
+    
+    // Don't load saved selections - clear on refresh
+    // loadSelections();
+    updateSelectionSummary();
+    
+    // Initialize accordion
     const firstGroup = document.querySelector('.group-content.open');
     if (firstGroup) {
         openGroupId = firstGroup.id;
-        // Set initial max-height for smooth animation
         firstGroup.style.maxHeight = firstGroup.scrollHeight + 'px';
     }
 });
+
+// Handle card click to toggle selection
+function handleCardClick(placeId, event) {
+    // Don't toggle if clicking on checkbox, activity card, or view details button
+    if (event.target.closest('.custom-checkbox-container') || 
+        event.target.closest('.activity-card') || 
+        event.target.closest('a[href*="destination-details"]')) {
+        return;
+    }
+    
+    const checkbox = document.getElementById('place-' + placeId);
+    if (checkbox) {
+        checkbox.checked = !checkbox.checked;
+        togglePlaceSelection(placeId, event);
+    }
+}
+
+// Toggle Place Selection
+function togglePlaceSelection(placeId, event) {
+    if (event) {
+        event.stopPropagation();
+    }
+    const checkbox = document.getElementById('place-' + placeId);
+    const card = checkbox.closest('.place-card');
+    
+    if (checkbox.checked) {
+        selectedPlaces.add(placeId);
+        card.classList.add('selected');
+    } else {
+        selectedPlaces.delete(placeId);
+        card.classList.remove('selected');
+        // Remove activities from this place
+        const activityCheckboxes = card.querySelectorAll('.activity-checkbox');
+        activityCheckboxes.forEach(acb => {
+            if (acb.checked) {
+                acb.checked = false;
+                const activityId = parseInt(acb.dataset.activityId);
+                const placeIdFromActivity = parseInt(acb.dataset.placeId);
+                selectedActivities.delete(activityId + '-' + placeIdFromActivity);
+                // Update visual state
+                const activityCard = acb.closest('.activity-card');
+                if (activityCard) {
+                    activityCard.classList.remove('selected');
+                }
+            }
+        });
+    }
+    
+    saveSelections();
+    updateSelectionSummary();
+}
+
+// Handle activity card click to toggle selection
+function handleActivityCardClick(activityId, placeId, event) {
+    // Don't toggle if clicking on checkbox
+    if (event.target.closest('.custom-checkbox-container-small')) {
+        return;
+    }
+    
+    const checkbox = document.getElementById('activity-' + activityId + '-' + placeId);
+    if (checkbox) {
+        checkbox.checked = !checkbox.checked;
+        toggleActivitySelection(activityId, placeId, event);
+    }
+}
+
+// Toggle Activity Selection
+function toggleActivitySelection(activityId, placeId, event) {
+    if (event) {
+        event.stopPropagation();
+    }
+    const checkbox = document.getElementById('activity-' + activityId + '-' + placeId);
+    const activityKey = activityId + '-' + placeId;
+    const activityCard = checkbox.closest('.activity-card');
+    
+    if (checkbox.checked) {
+        selectedActivities.add(activityKey);
+        if (activityCard) {
+            activityCard.classList.add('selected');
+        }
+        
+        // Auto-select place if no places are selected
+        if (selectedPlaces.size === 0) {
+            const placeCheckbox = document.getElementById('place-' + placeId);
+            if (placeCheckbox && !placeCheckbox.checked) {
+                placeCheckbox.checked = true;
+                selectedPlaces.add(placeId);
+                const placeCard = placeCheckbox.closest('.place-card');
+                if (placeCard) {
+                    placeCard.classList.add('selected');
+                }
+            }
+        }
+        
+        // Ensure the place is selected
+        if (!selectedPlaces.has(placeId)) {
+            const placeCheckbox = document.getElementById('place-' + placeId);
+            if (placeCheckbox) {
+                placeCheckbox.checked = true;
+                selectedPlaces.add(placeId);
+                const placeCard = placeCheckbox.closest('.place-card');
+                if (placeCard) {
+                    placeCard.classList.add('selected');
+                }
+            }
+        }
+    } else {
+        selectedActivities.delete(activityKey);
+        if (activityCard) {
+            activityCard.classList.remove('selected');
+        }
+    }
+    
+    saveSelections();
+    updateSelectionSummary();
+}
+
+// Update Selection Summary
+function updateSelectionSummary() {
+    const placesCount = selectedPlaces.size;
+    const citiesSet = new Set();
+    const statesSet = new Set();
+    const activitiesSet = new Set();
+    let placeTotalMin = 0;
+    let placeTotalMax = 0;
+    let activityTotalMin = 0;
+    let activityTotalMax = 0;
+    let hasFreePlace = false;
+    let hasPaidActivity = false;
+    
+    // Calculate cities, states, and price range from selected places
+    selectedPlaces.forEach(placeId => {
+        const placeData = placeDataMap[placeId];
+        if (placeData) {
+            citiesSet.add(placeData.cityId);
+            statesSet.add(placeData.stateId);
+            
+            if (placeData.priceMin === 0 && placeData.priceMax === 0) {
+                hasFreePlace = true;
+            } else {
+                placeTotalMin += placeData.priceMin || 0;
+                placeTotalMax += placeData.priceMax || 0;
+            }
+        }
+    });
+    
+    // Calculate activity prices
+    selectedActivities.forEach(activityKey => {
+        const activityId = activityKey.split('-')[0];
+        activitiesSet.add(activityId);
+        
+        const activityData = activityDataMap[activityKey];
+        if (activityData) {
+            if (activityData.priceMin > 0 || activityData.priceMax > 0) {
+                activityTotalMin += activityData.priceMin || 0;
+                activityTotalMax += activityData.priceMax || 0;
+                hasPaidActivity = true;
+            }
+        }
+    });
+    
+    // Update UI - Mobile
+    document.getElementById('selected-places-count').textContent = placesCount;
+    document.getElementById('selected-cities-count').textContent = citiesSet.size;
+    document.getElementById('selected-states-count').textContent = statesSet.size;
+    document.getElementById('selected-activities-count').textContent = activitiesSet.size;
+    
+    // Update UI - Tablet/Desktop
+    const placesCountMd = document.getElementById('selected-places-count-md');
+    const citiesCountMd = document.getElementById('selected-cities-count-md');
+    const statesCountMd = document.getElementById('selected-states-count-md');
+    const activitiesCountMd = document.getElementById('selected-activities-count-md');
+    if (placesCountMd) placesCountMd.textContent = placesCount;
+    if (citiesCountMd) citiesCountMd.textContent = citiesSet.size;
+    if (statesCountMd) statesCountMd.textContent = statesSet.size;
+    if (activitiesCountMd) activitiesCountMd.textContent = activitiesSet.size;
+    
+    // Calculate total price range (places + activities)
+    const totalMin = placeTotalMin + activityTotalMin;
+    const totalMax = placeTotalMax + activityTotalMax;
+    
+    // Update price range
+    let priceText = '';
+    if (hasPaidActivity || placeTotalMin > 0 || placeTotalMax > 0) {
+        // If there are paid items, just show the price (don't show "FREE +")
+        if (totalMin === totalMax) {
+            priceText = '₹' + numberFormat(totalMin);
+        } else {
+            priceText = '₹' + numberFormat(totalMin) + ' - ₹' + numberFormat(totalMax);
+        }
+    } else if (hasFreePlace && !hasPaidActivity) {
+        // Only show "FREE" if everything is actually free
+        priceText = 'FREE';
+    } else {
+        priceText = '₹0';
+    }
+    
+    document.getElementById('price-range').textContent = priceText;
+    const priceRangeMd = document.getElementById('price-range-md');
+    if (priceRangeMd) priceRangeMd.textContent = priceText;
+    
+    // Show/hide navbar
+    const navbar = document.getElementById('selection-navbar');
+    if (placesCount > 0 || activitiesSet.size > 0) {
+        navbar.classList.add('show');
+    } else {
+        navbar.classList.remove('show');
+    }
+}
+
+// Save selections to localStorage
+function saveSelections() {
+    localStorage.setItem('selectedPlaces', JSON.stringify(Array.from(selectedPlaces)));
+    localStorage.setItem('selectedActivities', JSON.stringify(Array.from(selectedActivities)));
+}
+
+// Load selections from localStorage
+function loadSelections() {
+    const savedPlaces = localStorage.getItem('selectedPlaces');
+    const savedActivities = localStorage.getItem('selectedActivities');
+    
+    if (savedPlaces) {
+        const places = JSON.parse(savedPlaces);
+        places.forEach(placeId => {
+            selectedPlaces.add(placeId);
+            const checkbox = document.getElementById('place-' + placeId);
+            if (checkbox) {
+                checkbox.checked = true;
+                checkbox.closest('.place-card').classList.add('selected');
+            }
+        });
+    }
+    
+    if (savedActivities) {
+        const activities = JSON.parse(savedActivities);
+        activities.forEach(activityKey => {
+            selectedActivities.add(activityKey);
+            const parts = activityKey.split('-');
+            const activityId = parts[0];
+            const placeId = parts[1];
+            const checkbox = document.getElementById('activity-' + activityId + '-' + placeId);
+            if (checkbox) {
+                checkbox.checked = true;
+                checkbox.closest('.activity-card').classList.add('selected');
+            }
+        });
+    }
+}
+
+// Number formatting helper
+function numberFormat(num) {
+    return new Intl.NumberFormat('en-IN').format(Math.round(num));
+}
+
+// Clear all selections
+function clearAllSelections() {
+    if (confirm('Are you sure you want to clear all selections?')) {
+        // Clear place selections
+        selectedPlaces.forEach(placeId => {
+            const checkbox = document.getElementById('place-' + placeId);
+            if (checkbox) {
+                checkbox.checked = false;
+                checkbox.closest('.place-card').classList.remove('selected');
+            }
+        });
+        selectedPlaces.clear();
+        
+        // Clear activity selections
+        selectedActivities.forEach(activityKey => {
+            const parts = activityKey.split('-');
+            const activityId = parts[0];
+            const placeId = parts[1];
+            const checkbox = document.getElementById('activity-' + activityId + '-' + placeId);
+            if (checkbox) {
+                checkbox.checked = false;
+                checkbox.closest('.activity-card').classList.remove('selected');
+            }
+        });
+        selectedActivities.clear();
+        
+        saveSelections();
+        updateSelectionSummary();
+    }
+}
+
+// Select all visible places
+function selectAllVisible() {
+    const visiblePlaceCards = document.querySelectorAll('.group-content.open .place-card');
+    visiblePlaceCards.forEach(card => {
+        const placeId = parseInt(card.dataset.placeId);
+        if (!selectedPlaces.has(placeId)) {
+            const checkbox = document.getElementById('place-' + placeId);
+            if (checkbox) {
+                checkbox.checked = true;
+                selectedPlaces.add(placeId);
+                card.classList.add('selected');
+            }
+        }
+    });
+    
+    saveSelections();
+    updateSelectionSummary();
+}
+
+// Proceed to next step
+function proceedToNext() {
+    const placesArray = Array.from(selectedPlaces);
+    const activitiesArray = Array.from(selectedActivities);
+    
+    if (placesArray.length === 0 && activitiesArray.length === 0) {
+        alert('Please select at least one place or activity');
+        return;
+    }
+    
+    // You can redirect to a booking/planning page or handle the data as needed
+    const params = new URLSearchParams();
+    if (placesArray.length > 0) {
+        params.append('places', placesArray.join(','));
+    }
+    if (activitiesArray.length > 0) {
+        params.append('activities', activitiesArray.join(','));
+    }
+    
+    // For now, just show an alert. Replace with actual redirect
+    console.log('Selected Places:', placesArray);
+    console.log('Selected Activities:', activitiesArray);
+    alert('Selected ' + placesArray.length + ' places and ' + activitiesArray.length + ' activities. Redirect to booking page...');
+    
+    // Uncomment to redirect:
+    // window.location.href = 'booking.php?' + params.toString();
+}
+
+// Accordion/Collapse functionality - Only one group open at a time with smooth animations
+let openGroupId = null;
+
+// Accordion functionality is now in the DOMContentLoaded above
 
 function toggleGroup(groupId) {
     const groupContent = document.getElementById(groupId);

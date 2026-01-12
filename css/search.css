@@ -49,10 +49,7 @@
     cursor: pointer;
     position: relative;
 }
-.activity-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 16px rgba(0, 150, 136, 0.15);
-}
+
 .activity-card.selected {
     background: linear-gradient(135deg, #e0f2f1 0%, #b2dfdb 100%);
     box-shadow: 0 4px 12px rgba(0, 150, 136, 0.2);
