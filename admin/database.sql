@@ -161,6 +161,9 @@ CREATE TABLE IF NOT EXISTS places (
     -- Place Priority & Experience Quality
     experience_score INT CHECK (experience_score BETWEEN 1 AND 5),
     priority_level INT DEFAULT 3,
+    -- Ticket Pricing
+    ticket_price_min DECIMAL(10,2) DEFAULT 0,
+    ticket_price_max DECIMAL(10,2) DEFAULT 0,
     status ENUM('active','inactive') DEFAULT 'active',
     is_verified ENUM('yes','no') DEFAULT 'no',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -370,8 +373,14 @@ INSERT INTO transport_price_rules (transport_type_id, sub_type, min_cost_per_km,
 (2, 'Petrol Car', 7.00, 10.00, 'Car rental with fuel cost included');
 
 -- Add status field to existing tables (for existing databases)
--- Run these ALTER TABLE statements if you have an existing database
+-- NOTE: These ALTER TABLE statements will fail if columns already exist
+-- If you get "Duplicate column name" errors, you can safely ignore them or comment out these lines
+-- The columns are already defined in the CREATE TABLE statements above
 
+-- Uncomment the lines below ONLY if you need to add these columns to an existing database
+-- that was created without these columns
+
+/*
 ALTER TABLE countries
 ADD COLUMN status ENUM('active','inactive') DEFAULT 'active';
 
@@ -398,27 +407,71 @@ ALTER TABLE place_activities
 ADD COLUMN status ENUM('active','inactive') DEFAULT 'active',
 ADD COLUMN is_verified ENUM('yes','no') DEFAULT 'no',
 ADD COLUMN priority_level INT DEFAULT 3;
+*/
 
 -- Insert Sample Places
-INSERT INTO places (city_id, name, description, image, security_info, night_travel_safety, safety_level, religion_restrictions, best_time_of_day, avg_visit_time_hours, crowd_level, avg_waiting_time_minutes, weather_dependency, monsoon_risk, sudden_closure_risk, child_friendly, senior_friendly, physical_effort, nearest_hospital_distance_km, police_response_level, digital_amenities, mobile_network, internet_availability, experience_score, priority_level) VALUES
+INSERT INTO places (city_id, name, description, image, security_info, night_travel_safety, safety_level, religion_restrictions, best_time_of_day, avg_visit_time_hours, crowd_level, avg_waiting_time_minutes, weather_dependency, monsoon_risk, sudden_closure_risk, child_friendly, senior_friendly, physical_effort, nearest_hospital_distance_km, police_response_level, digital_amenities, mobile_network, internet_availability, experience_score, priority_level, status) VALUES
 -- Mumbai Places
-(9, 'Gateway of India', 'The Gateway of India is an arch monument built during the 20th century in Mumbai. It is one of the most iconic landmarks of the city and a popular tourist attraction.', 'https://images.unsplash.com/photo-1501785888041-af3ef285b470', 'Generally safe area with police presence. Be cautious of pickpockets in crowded areas. Keep valuables secure.', 'Moderately safe for night travel. Well-lit area with security personnel. Avoid isolated areas after midnight.', 'High', 'No Restriction', 'anytime', 1.5, 'high', 15, 'low', 'safe', 'rare', 'yes', 'yes', 'low', 2.5, 'good', 'Free WiFi available nearby. Good mobile network coverage. Digital payment accepted at most vendors.', 'good', 'yes', 5, 5),
-(9, 'Marine Drive', 'Marine Drive is a 3.6-kilometer-long boulevard in South Mumbai. It is also known as the Queen''s Necklace due to its curved shape and street lights that resemble a string of pearls.', 'https://images.unsplash.com/photo-1501785888041-af3ef285b470', 'Safe area with regular police patrolling. Popular among locals and tourists. Keep belongings close.', 'Safe for night travel. Well-lit promenade. Many people visit during evenings. Exercise caution after 11 PM.', 'High', 'No Restriction', 'evening', 2.0, 'medium', 5, 'low', 'safe', 'rare', 'yes', 'yes', 'low', 3.0, 'good', 'Good mobile network. Some cafes offer WiFi. Digital payment widely accepted.', 'good', 'yes', 4, 4),
+(9, 'Gateway of India', 'The Gateway of India is an arch monument built during the 20th century in Mumbai. It is one of the most iconic landmarks of the city and a popular tourist attraction.', 'https://images.unsplash.com/photo-1501785888041-af3ef285b470', 'Generally safe area with police presence. Be cautious of pickpockets in crowded areas. Keep valuables secure.', 'Moderately safe for night travel. Well-lit area with security personnel. Avoid isolated areas after midnight.', 'High', 'No Restriction', 'anytime', 1.5, 'high', 15, 'low', 'safe', 'rare', 'yes', 'yes', 'low', 2.5, 'good', 'Free WiFi available nearby. Good mobile network coverage. Digital payment accepted at most vendors.', 'good', 'yes', 5, 5, 0, 0, 'active'),
+(9, 'Marine Drive', 'Marine Drive is a 3.6-kilometer-long boulevard in South Mumbai. It is also known as the Queen''s Necklace due to its curved shape and street lights that resemble a string of pearls.', 'https://images.unsplash.com/photo-1501785888041-af3ef285b470', 'Safe area with regular police patrolling. Popular among locals and tourists. Keep belongings close.', 'Safe for night travel. Well-lit promenade. Many people visit during evenings. Exercise caution after 11 PM.', 'High', 'No Restriction', 'evening', 2.0, 'medium', 5, 'low', 'safe', 'rare', 'yes', 'yes', 'low', 3.0, 'good', 'Good mobile network. Some cafes offer WiFi. Digital payment widely accepted.', 'good', 'yes', 4, 4, 0, 0, 'active'),
 -- Agra Places
-(19, 'Taj Mahal', 'The Taj Mahal is an ivory-white marble mausoleum on the right bank of the Yamuna river in Agra. It was commissioned in 1632 by the Mughal emperor Shah Jahan to house the tomb of his favorite wife, Mumtaz Mahal.', 'https://images.unsplash.com/photo-1548013146-72479768bada', 'Highly secure area with strict security checks. Bags and certain items not allowed inside. Follow security guidelines.', 'Not accessible at night. Open from sunrise to sunset. Night viewing available on full moon nights with special tickets.', 'High', 'No Restriction', 'morning', 3.0, 'high', 60, 'low', 'safe', 'rare', 'yes', 'yes', 'low', 5.0, 'good', 'Limited WiFi. Good mobile network. Online ticket booking available. Digital payment accepted.', 'good', 'limited', 5, 5),
-(19, 'Agra Fort', 'Agra Fort is a historical fort in the city of Agra in India. It was the main residence of the emperors of the Mughal Dynasty until 1638, when the capital was shifted from Agra to Delhi.', 'https://images.unsplash.com/photo-1548013146-72479768bada', 'Secure monument with security personnel. Follow rules and regulations. Keep valuables safe.', 'Open during daylight hours only. Not recommended for night visits.', 'High', 'No Restriction', 'morning', 2.5, 'medium', 30, 'low', 'safe', 'rare', 'yes', 'yes', 'medium', 4.5, 'good', 'Good mobile network coverage. Online ticket booking available.', 'good', 'yes', 4, 4),
+(19, 'Taj Mahal', 'The Taj Mahal is an ivory-white marble mausoleum on the right bank of the Yamuna river in Agra. It was commissioned in 1632 by the Mughal emperor Shah Jahan to house the tomb of his favorite wife, Mumtaz Mahal.', 'https://images.unsplash.com/photo-1548013146-72479768bada', 'Highly secure area with strict security checks. Bags and certain items not allowed inside. Follow security guidelines.', 'Not accessible at night. Open from sunrise to sunset. Night viewing available on full moon nights with special tickets.', 'High', 'No Restriction', 'morning', 3.0, 'high', 60, 'low', 'safe', 'rare', 'yes', 'yes', 'low', 5.0, 'good', 'Limited WiFi. Good mobile network. Online ticket booking available. Digital payment accepted.', 'good', 'limited', 5, 5, 50, 200, 'active'),
+(19, 'Agra Fort', 'Agra Fort is a historical fort in the city of Agra in India. It was the main residence of the emperors of the Mughal Dynasty until 1638, when the capital was shifted from Agra to Delhi.', 'https://images.unsplash.com/photo-1548013146-72479768bada', 'Secure monument with security personnel. Follow rules and regulations. Keep valuables safe.', 'Open during daylight hours only. Not recommended for night visits.', 'High', 'No Restriction', 'morning', 2.5, 'medium', 30, 'low', 'safe', 'rare', 'yes', 'yes', 'medium', 4.5, 'good', 'Good mobile network coverage. Online ticket booking available.', 'good', 'yes', 4, 4, 40, 100, 'active'),
 -- Jaipur Places
-(13, 'Hawa Mahal', 'Hawa Mahal, also known as the Palace of Winds, is a five-story building in Jaipur. It was built in 1799 by Maharaja Sawai Pratap Singh and is one of the most iconic landmarks of Jaipur.', 'https://images.unsplash.com/photo-1589182373726-e4f658ab50f0', 'Safe tourist area with security. Be cautious of street vendors and touts. Keep belongings secure.', 'Moderately safe. Well-lit main area. Avoid isolated streets after dark.', 'Medium', 'No Restriction', 'morning', 1.5, 'medium', 20, 'low', 'safe', 'rare', 'yes', 'no', 'medium', 2.0, 'good', 'Good mobile network. Some shops offer WiFi. Digital payment accepted.', 'good', 'yes', 4, 3),
-(13, 'Amber Fort', 'Amber Fort is a massive fort located in Amer, about 11 kilometers from Jaipur. It is one of the principal tourist attractions in the Jaipur area, located high on a hill.', 'https://images.unsplash.com/photo-1589182373726-e4f658ab50f0', 'Secure fort area with security personnel. Follow safety guidelines. Keep valuables safe.', 'Open during daylight hours. Not recommended for night visits. Limited lighting in some areas.', 'Medium', 'No Restriction', 'morning', 3.0, 'medium', 45, 'low', 'safe', 'rare', 'yes', 'no', 'high', 6.0, 'good', 'Good mobile network. Online ticket booking available. Digital payment accepted.', 'good', 'yes', 5, 5),
+(13, 'Hawa Mahal', 'Hawa Mahal, also known as the Palace of Winds, is a five-story building in Jaipur. It was built in 1799 by Maharaja Sawai Pratap Singh and is one of the most iconic landmarks of Jaipur.', 'https://images.unsplash.com/photo-1589182373726-e4f658ab50f0', 'Safe tourist area with security. Be cautious of street vendors and touts. Keep belongings secure.', 'Moderately safe. Well-lit main area. Avoid isolated streets after dark.', 'Medium', 'No Restriction', 'morning', 1.5, 'medium', 20, 'low', 'safe', 'rare', 'yes', 'no', 'medium', 2.0, 'good', 'Good mobile network. Some shops offer WiFi. Digital payment accepted.', 'good', 'yes', 4, 3, 50, 50, 'active'),
+(13, 'Amber Fort', 'Amber Fort is a massive fort located in Amer, about 11 kilometers from Jaipur. It is one of the principal tourist attractions in the Jaipur area, located high on a hill.', 'https://images.unsplash.com/photo-1589182373726-e4f658ab50f0', 'Secure fort area with security personnel. Follow safety guidelines. Keep valuables safe.', 'Open during daylight hours. Not recommended for night visits. Limited lighting in some areas.', 'Medium', 'No Restriction', 'morning', 3.0, 'medium', 45, 'low', 'safe', 'rare', 'yes', 'no', 'high', 6.0, 'good', 'Good mobile network. Online ticket booking available. Digital payment accepted.', 'good', 'yes', 5, 5, 100, 200, 'active'),
 -- Goa Places
-(5, 'Baga Beach', 'Baga Beach is one of the most popular beaches in North Goa, known for its water sports, nightlife, and vibrant atmosphere. It offers a perfect blend of relaxation and adventure.', 'https://images.unsplash.com/photo-1500534314209-a25ddb2bd429', 'Generally safe beach area. Be cautious in water. Follow lifeguard instructions. Keep valuables in lockers.', 'Moderately safe. Well-lit beach shacks. Many tourists visit at night. Exercise caution on isolated beach areas.', 'Medium', 'No Restriction', 'anytime', 4.0, 'high', 10, 'medium', 'risky', 'occasional', 'yes', 'yes', 'low', 8.0, 'medium', 'Good mobile network. Many beach shacks offer WiFi. Digital payment widely accepted.', 'good', 'yes', 4, 4),
-(5, 'Calangute Beach', 'Calangute Beach is the largest and most commercialized beach in North Goa. It is known for its golden sand, water sports, and numerous restaurants and shops.', 'https://images.unsplash.com/photo-1500534314209-a25ddb2bd429', 'Safe tourist area. Be cautious in water. Follow safety guidelines for water sports.', 'Safe for evening visits. Well-lit area with many restaurants and shops open late.', 'High', 'No Restriction', 'anytime', 4.0, 'high', 15, 'medium', 'risky', 'occasional', 'yes', 'yes', 'low', 7.5, 'good', 'Excellent mobile network. Many establishments offer WiFi. Digital payment widely accepted.', 'good', 'yes', 4, 4),
+(5, 'Baga Beach', 'Baga Beach is one of the most popular beaches in North Goa, known for its water sports, nightlife, and vibrant atmosphere. It offers a perfect blend of relaxation and adventure.', 'https://images.unsplash.com/photo-1500534314209-a25ddb2bd429', 'Generally safe beach area. Be cautious in water. Follow lifeguard instructions. Keep valuables in lockers.', 'Moderately safe. Well-lit beach shacks. Many tourists visit at night. Exercise caution on isolated beach areas.', 'Medium', 'No Restriction', 'anytime', 4.0, 'high', 10, 'medium', 'risky', 'occasional', 'yes', 'yes', 'low', 8.0, 'medium', 'Good mobile network. Many beach shacks offer WiFi. Digital payment widely accepted.', 'good', 'yes', 4, 4, 0, 0, 'active'),
+(5, 'Calangute Beach', 'Calangute Beach is the largest and most commercialized beach in North Goa. It is known for its golden sand, water sports, and numerous restaurants and shops.', 'https://images.unsplash.com/photo-1500534314209-a25ddb2bd429', 'Safe tourist area. Be cautious in water. Follow safety guidelines for water sports.', 'Safe for evening visits. Well-lit area with many restaurants and shops open late.', 'High', 'No Restriction', 'anytime', 4.0, 'high', 15, 'medium', 'risky', 'occasional', 'yes', 'yes', 'low', 7.5, 'good', 'Excellent mobile network. Many establishments offer WiFi. Digital payment widely accepted.', 'good', 'yes', 4, 4, 0, 0, 'active'),
 -- Kerala Places
-(7, 'Backwaters of Alleppey', 'The backwaters of Alleppey are a network of canals, rivers, and lakes that form a unique ecosystem. Houseboat cruises are the most popular way to experience this natural wonder.', 'https://images.unsplash.com/photo-1500534314209-a25ddb2bd429', 'Safe waterway area. Follow safety instructions on houseboats. Wear life jackets when required.', 'Limited night travel on backwaters. Most houseboats dock at night. Safe when on anchored houseboats.', 'High', 'No Restriction', 'morning', 24.0, 'low', 0, 'high', 'risky', 'occasional', 'yes', 'yes', 'low', 12.0, 'medium', 'Limited mobile network in some areas. Some houseboats offer WiFi. Digital payment accepted for bookings.', 'weak', 'limited', 5, 5),
-(8, 'Munnar Tea Gardens', 'Munnar is famous for its sprawling tea plantations that cover the hillsides. The tea gardens offer breathtaking views and opportunities to learn about tea processing.', 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee', 'Safe plantation areas. Follow guided tour instructions. Be cautious on steep paths.', 'Not recommended for night visits. Tea gardens close at sunset. Limited lighting in plantation areas.', 'Medium', 'No Restriction', 'morning', 3.0, 'low', 10, 'medium', 'risky', 'rare', 'yes', 'no', 'medium', 15.0, 'medium', 'Good mobile network in main areas. Some resorts offer WiFi. Digital payment accepted.', 'good', 'limited', 4, 4),
+(7, 'Backwaters of Alleppey', 'The backwaters of Alleppey are a network of canals, rivers, and lakes that form a unique ecosystem. Houseboat cruises are the most popular way to experience this natural wonder.', 'https://images.unsplash.com/photo-1500534314209-a25ddb2bd429', 'Safe waterway area. Follow safety instructions on houseboats. Wear life jackets when required.', 'Limited night travel on backwaters. Most houseboats dock at night. Safe when on anchored houseboats.', 'High', 'No Restriction', 'morning', 24.0, 'low', 0, 'high', 'risky', 'occasional', 'yes', 'yes', 'low', 12.0, 'medium', 'Limited mobile network in some areas. Some houseboats offer WiFi. Digital payment accepted for bookings.', 'weak', 'limited', 5, 5, 2000, 5000, 'active'),
+(8, 'Munnar Tea Gardens', 'Munnar is famous for its sprawling tea plantations that cover the hillsides. The tea gardens offer breathtaking views and opportunities to learn about tea processing.', 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee', 'Safe plantation areas. Follow guided tour instructions. Be cautious on steep paths.', 'Not recommended for night visits. Tea gardens close at sunset. Limited lighting in plantation areas.', 'Medium', 'No Restriction', 'morning', 3.0, 'low', 10, 'medium', 'risky', 'rare', 'yes', 'no', 'medium', 15.0, 'medium', 'Good mobile network in main areas. Some resorts offer WiFi. Digital payment accepted.', 'good', 'limited', 4, 4, 200, 500, 'active'),
 -- Darjeeling Places
-(20, 'Tiger Hill', 'Tiger Hill is famous for its spectacular sunrise views over Mount Kanchenjunga and Mount Everest. It is one of the highest points in Darjeeling and a popular tourist destination.', 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee', 'Safe viewing area. Be cautious on steep paths, especially in early morning darkness. Follow guide instructions.', 'Early morning visits for sunrise are safe with proper lighting. Avoid isolated areas in complete darkness.', 'Medium', 'No Restriction', 'morning', 2.0, 'low', 30, 'high', 'closed', 'frequent', 'yes', 'no', 'medium', 18.0, 'medium', 'Good mobile network at viewing point. Limited WiFi. Digital payment accepted for entry tickets.', 'weak', 'limited', 5, 5),
-(20, 'Darjeeling Himalayan Railway', 'The Darjeeling Himalayan Railway, also known as the Toy Train, is a narrow-gauge railway that runs between New Jalpaiguri and Darjeeling. It is a UNESCO World Heritage Site.', 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee', 'Safe railway journey. Follow safety instructions. Keep belongings secure during travel.', 'Limited night services. Most trains operate during daylight hours. Safe when traveling in groups.', 'High', 'No Restriction', 'morning', 7.0, 'medium', 20, 'medium', 'risky', 'occasional', 'yes', 'yes', 'low', 10.0, 'good', 'Good mobile network along most routes. Online ticket booking available. Digital payment accepted.', 'good', 'yes', 5, 4);
+(20, 'Tiger Hill', 'Tiger Hill is famous for its spectacular sunrise views over Mount Kanchenjunga and Mount Everest. It is one of the highest points in Darjeeling and a popular tourist destination.', 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee', 'Safe viewing area. Be cautious on steep paths, especially in early morning darkness. Follow guide instructions.', 'Early morning visits for sunrise are safe with proper lighting. Avoid isolated areas in complete darkness.', 'Medium', 'No Restriction', 'morning', 2.0, 'low', 30, 'high', 'closed', 'frequent', 'yes', 'no', 'medium', 18.0, 'medium', 'Good mobile network at viewing point. Limited WiFi. Digital payment accepted for entry tickets.', 'weak', 'limited', 5, 5, 100, 300, 'active'),
+(20, 'Darjeeling Himalayan Railway', 'The Darjeeling Himalayan Railway, also known as the Toy Train, is a narrow-gauge railway that runs between New Jalpaiguri and Darjeeling. It is a UNESCO World Heritage Site.', 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee', 'Safe railway journey. Follow safety instructions. Keep belongings secure during travel.', 'Limited night services. Most trains operate during daylight hours. Safe when traveling in groups.', 'High', 'No Restriction', 'morning', 7.0, 'medium', 20, 'medium', 'risky', 'occasional', 'yes', 'yes', 'low', 10.0, 'good', 'Good mobile network along most routes. Online ticket booking available. Digital payment accepted.', 'good', 'yes', 5, 4, 50, 200, 'active'),
+-- Odisha Places (Puri) - Note: Puri is district ID 13 (counting from districts INSERT)
+(13, 'Jagannath Temple', 'The Jagannath Temple is a famous Hindu temple dedicated to Lord Jagannath, a form of Vishnu. It is one of the Char Dham pilgrimage sites and one of the most important temples in India.', 'https://images.unsplash.com/photo-1548013146-72479768bada', 'Highly secure temple area with strict security checks. Follow temple rules and dress code. Keep valuables in lockers.', 'Temple is open from early morning to late evening. Night visits are not allowed. Follow temple timings.', 'High', 'Hindu temple - follow dress code and temple rules', 'morning', 2.0, 'high', 30, 'low', 'safe', 'rare', 'yes', 'yes', 'low', 3.0, 'good', 'Good mobile network. Limited WiFi. Digital payment accepted for donations.', 'good', 'yes', 5, 5, 0, 0, 'active'),
+(13, 'Puri Beach', 'Puri Beach is a beautiful beach on the Bay of Bengal, famous for its golden sand, sunrise views, and water activities. It is one of the most popular beaches in Odisha.', 'https://images.unsplash.com/photo-1500534314209-a25ddb2bd429', 'Generally safe beach area. Be cautious in water. Follow lifeguard instructions. Keep valuables secure.', 'Moderately safe for evening visits. Well-lit beach area. Many tourists visit during sunset. Exercise caution after dark.', 'High', 'No Restriction', 'anytime', 3.0, 'high', 10, 'medium', 'risky', 'occasional', 'yes', 'yes', 'low', 4.0, 'good', 'Good mobile network. Some beach shacks offer WiFi. Digital payment widely accepted.', 'good', 'yes', 4, 4, 0, 0, 'active'),
+(13, 'Chilika Lake', 'Chilika Lake is the largest brackish water lagoon in India and Asia. It is famous for bird watching, dolphin spotting, and boating activities.', 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e', 'Safe waterway area. Follow safety instructions on boats. Wear life jackets when required.', 'Limited night travel. Most boats operate during daylight hours. Safe when on anchored boats.', 'High', 'No Restriction', 'morning', 4.0, 'low', 15, 'medium', 'risky', 'occasional', 'yes', 'yes', 'low', 25.0, 'medium', 'Limited mobile network in some areas. Digital payment accepted for boat bookings.', 'weak', 'limited', 5, 4, 300, 800, 'active');
+
+-- ============================================
+-- SIMPLE UPDATE CODE FOR EXISTING DATABASES
+-- ============================================
+-- Copy and run this code in phpMyAdmin or MySQL if you have an existing database
+-- This will add ticket price columns if they don't exist
+
+-- Step 1: Add ticket price columns (run this first)
+ALTER TABLE places
+ADD COLUMN IF NOT EXISTS ticket_price_min DECIMAL(10,2) DEFAULT 0,
+ADD COLUMN IF NOT EXISTS ticket_price_max DECIMAL(10,2) DEFAULT 0;
+
+-- Step 2: Update existing places with default FREE prices
+UPDATE places 
+SET ticket_price_min = COALESCE(ticket_price_min, 0), 
+    ticket_price_max = COALESCE(ticket_price_max, 0)
+WHERE ticket_price_min IS NULL OR ticket_price_max IS NULL;
+
+-- Note: If your MySQL version doesn't support IF NOT EXISTS for ALTER TABLE,
+-- use this alternative approach:
+-- 
+-- SET @dbname = DATABASE();
+-- SET @tablename = 'places';
+-- SET @columnname1 = 'ticket_price_min';
+-- SET @columnname2 = 'ticket_price_max';
+-- SET @preparedStatement = (SELECT IF(
+--   (
+--     SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+--     WHERE
+--       (table_name = @tablename)
+--       AND (table_schema = @dbname)
+--       AND (column_name = @columnname1)
+--   ) > 0,
+--   'SELECT 1',
+--   CONCAT('ALTER TABLE ', @tablename, ' ADD COLUMN ', @columnname1, ' DECIMAL(10,2) DEFAULT 0, ADD COLUMN ', @columnname2, ' DECIMAL(10,2) DEFAULT 0')
+-- ));
+-- PREPARE alterIfNotExists FROM @preparedStatement;
+-- EXECUTE alterIfNotExists;
+-- DEALLOCATE PREPARE alterIfNotExists;
 
 -- Insert Place Hotel Types (Sample associations)
 INSERT INTO place_hotel_types (place_id, hotel_type_id) VALUES
@@ -511,10 +564,20 @@ INSERT INTO place_activities (place_id, activity_type_id, safety_info, safety_le
 -- Tiger Hill - Photography Tours
 (11, 8, 'Early morning visits require warm clothing. Be cautious in darkness. Follow guide instructions.', 'High', 'All ages', 'No restriction', 'Respiratory problems in cold weather', '04:00:00', '08:00:00', 'October,November,December,January,February,March,April', '100-300'),
 -- Darjeeling Himalayan Railway - Heritage Walks
-(12, 7, 'Be cautious when boarding trains. Hold handrails. Follow railway safety guidelines.', 'High', 'All ages', 'No restriction', 'Mobility issues, severe balance problems', '08:00:00', '17:00:00', 'March,April,May,June,July,August,September,October,November', '50-200');
+(12, 7, 'Be cautious when boarding trains. Hold handrails. Follow railway safety guidelines.', 'High', 'All ages', 'No restriction', 'Mobility issues, severe balance problems', '08:00:00', '17:00:00', 'March,April,May,June,July,August,September,October,November', '50-200'),
+-- Jagannath Temple, Puri (place_id 13) - Temple Tours
+(13, 6, 'Follow temple rules and dress code. No leather items allowed. Maintain silence and respect. Photography restrictions apply in inner sanctum.', 'High', 'All ages', 'No restriction', 'None', '05:00:00', '22:00:00', 'January,February,March,April,May,June,July,August,September,October,November,December', 'Free'),
+-- Puri Beach (place_id 14) - Beach Activities
+(14, 4, 'Swim in designated safe zones. Follow lifeguard instructions. Be cautious of strong currents. Use sunscreen.', 'High', 'All ages', 'No restriction', 'Heart conditions, respiratory problems', '05:00:00', '20:00:00', 'November,December,January,February,March,April,May', 'Free'),
+-- Puri Beach (place_id 14) - Boating
+(14, 2, 'Enjoy boat rides along the coast. Wear life jackets. Follow captain instructions. Be cautious when boarding/disembarking.', 'High', 'All ages', 'No restriction', 'Motion sickness, severe balance issues', '06:00:00', '18:00:00', 'November,December,January,February,March,April,May', '200-500'),
+-- Chilika Lake (place_id 15) - Boating
+(15, 2, 'Wear life jackets on boats. Follow captain instructions. Be cautious when boarding/disembarking. Perfect for bird watching and dolphin spotting.', 'High', 'All ages', 'No restriction', 'Motion sickness, severe balance issues', '06:00:00', '17:00:00', 'October,November,December,January,February,March,April', '300-800'),
+-- Chilika Lake (place_id 15) - Wildlife Safari
+(15, 5, 'Experience wildlife in their natural habitat. Follow guide instructions. Maintain silence. Keep cameras ready for bird photography.', 'High', 'All ages', 'No restriction', 'None', '06:00:00', '17:00:00', 'October,November,December,January,February,March,April', '500-1000');
 
 -- Planning Rules Table
-update planning_rules (
+CREATE TABLE IF NOT EXISTS planning_rules (
     id INT AUTO_INCREMENT PRIMARY KEY,
     same_stay_hour_limit INT DEFAULT 4,
     travel_day_hour_limit INT DEFAULT 7,
@@ -523,4 +586,48 @@ update planning_rules (
 
 -- Insert default planning rules
 INSERT INTO planning_rules (same_stay_hour_limit, travel_day_hour_limit) VALUES (4, 7);
+
+-- ============================================
+-- SIMPLE UPDATE CODE FOR EXISTING DATABASES
+-- ============================================
+-- Copy and run this code in phpMyAdmin or MySQL if you have an existing database
+-- This will add ticket price columns if they don't exist
+
+-- Method 1: Simple ALTER TABLE (EASIEST - Just run this)
+-- If columns already exist, you'll get an error - that's okay, just ignore it
+ALTER TABLE places
+ADD COLUMN ticket_price_min DECIMAL(10,2) DEFAULT 0,
+ADD COLUMN ticket_price_max DECIMAL(10,2) DEFAULT 0;
+
+-- Update existing places with default FREE prices
+UPDATE places 
+SET ticket_price_min = 0, 
+    ticket_price_max = 0
+WHERE ticket_price_min IS NULL OR ticket_price_max IS NULL;
+
+-- ============================================
+-- Method 2: Safe update (No errors if columns exist)
+-- ============================================
+-- Use this if you want to avoid errors when columns already exist
+DELIMITER $$
+CREATE PROCEDURE AddTicketPriceColumnsIfNotExists()
+BEGIN
+    IF NOT EXISTS (
+        SELECT * FROM INFORMATION_SCHEMA.COLUMNS 
+        WHERE TABLE_SCHEMA = DATABASE() 
+        AND TABLE_NAME = 'places' 
+        AND COLUMN_NAME = 'ticket_price_min'
+    ) THEN
+        ALTER TABLE places
+        ADD COLUMN ticket_price_min DECIMAL(10,2) DEFAULT 0,
+        ADD COLUMN ticket_price_max DECIMAL(10,2) DEFAULT 0;
+    END IF;
+END$$
+DELIMITER ;
+
+-- Run the procedure
+CALL AddTicketPriceColumnsIfNotExists();
+
+-- Drop the procedure after use
+DROP PROCEDURE IF EXISTS AddTicketPriceColumnsIfNotExists;
 

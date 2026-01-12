@@ -20,5 +20,5 @@
     <?php endif; ?>
 </head>
 
-<body class="bg-gray-100 overflow-x-hidden">
+<body class="bg-gray-50 overflow-x-hidden">
 

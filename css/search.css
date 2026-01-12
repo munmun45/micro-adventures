@@ -1,163 +1,148 @@
-/* Search Page Specific Styles */
+/* Search Results Page - Mobile First */
 
-.disabled-place {
-    opacity: 0.5;
-    pointer-events: none;
+/* Place Card Styles */
+.place-card-result {
+    transition: all 0.3s ease;
     position: relative;
+    overflow: hidden;
+}
+.place-card-result:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
 }
 
-.disabled-place::before {
-    content: 'Currently Unavailable';
-    position: absolute;
-    top: 12px;
-    right: 12px;
-    background: rgba(239, 68, 68, 0.95);
-    color: white;
-    padding: 6px 12px;
-    border-radius: 8px;
-    font-size: 11px;
-    font-weight: 600;
-    z-index: 10;
+.place-card-result img {
+    transition: transform 0.5s ease;
+}
+.place-card-result:hover img {
+    transform: scale(1.1);
 }
 
-.disabled-activity {
-    opacity: 0.4;
-    pointer-events: none;
+/* Group Header Styles */
+.location-group-header {
+    background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+    border-left: 4px solid #009688;
+    padding: 1rem 1.5rem;
+    border-radius: 12px;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 2px 8px rgba(0, 150, 136, 0.1);
 }
 
-.place-card {
-    cursor: pointer;
-    position: relative;
-    will-change: border-color, box-shadow;
+.location-group-header h2 {
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
-.place-card.selected {
-    border: 3px solid #009688 !important;
-    box-shadow: 0 0 0 4px rgba(0, 150, 136, 0.15);
-    transition: none !important;
-}
-
-.card-checkbox {
-    position: absolute;
-    top: 16px;
-    right: 16px;
-    width: 32px;
-    height: 32px;
-    border: 3px solid white;
-    border-radius: 8px;
-    background: rgba(255, 255, 255, 0.95);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 5;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-}
-
-.card-checkbox::before {
-    content: '+';
-    color: #009688;
-    font-size: 20px;
-    font-weight: bold;
-    line-height: 1;
-}
-
-.place-card.selected .card-checkbox {
-    background: #009688;
-    border-color: #009688;
-    box-shadow: 0 2px 12px rgba(0, 150, 136, 0.4);
-}
-
-.place-card.selected .card-checkbox::before {
-    content: '✓';
-    color: white;
-    font-size: 18px;
-    font-weight: bold;
-}
-
-.activity-card {
-    cursor: pointer;
-    position: relative;
-    will-change: border-color, background-color;
-}
-
-.activity-card.selected {
-    border: 3px solid #009688 !important;
-    background: #f0fdfa;
-    box-shadow: 0 0 0 2px rgba(0, 150, 136, 0.1);
-    transition: none !important;
-}
-
-.activity-checkbox {
-    position: absolute;
-    top: 12px;
-    left: 10px;
-    width: 20px;
-    height: 20px;
-    border: 2px solid #d1d5db;
-    border-radius: 4px;
+/* Group Headers */
+.location-group-header {
+    position: sticky;
+    top: 56px;
     background: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 5;
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+    z-index: 10;
+    padding: 1rem 0;
+    border-bottom: 2px solid #009688;
+    margin-bottom: 1rem;
 }
 
-.activity-checkbox::before {
-    content: '+';
-    color: #009688;
-    font-size: 14px;
-    font-weight: bold;
-    line-height: 1;
+/* Activity Cards - Premium Design - No Border */
+.activity-card {
+    transition: all 0.3s ease;
+    cursor: pointer;
+    position: relative;
+}
+.activity-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px rgba(0, 150, 136, 0.15);
+}
+.activity-card.selected {
+    background: linear-gradient(135deg, #e0f2f1 0%, #b2dfdb 100%);
+    box-shadow: 0 4px 12px rgba(0, 150, 136, 0.2);
 }
 
-.activity-card.selected .activity-checkbox {
+/* Custom Scrollbar for Activities */
+.custom-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: #009688 #f3f4f6;
+}
+.custom-scrollbar::-webkit-scrollbar {
+    height: 6px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: #f3f4f6;
+    border-radius: 10px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
     background: #009688;
-    border-color: #009688;
-    box-shadow: 0 1px 6px rgba(0, 150, 136, 0.3);
+    border-radius: 10px;
+    transition: background 0.3s;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #00796b;
 }
 
-.activity-card.selected .activity-checkbox::before {
-    content: '✓';
-    color: white;
-    font-size: 12px;
-    font-weight: bold;
+/* Safety Badge */
+.safety-badge {
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
 }
 
-.selection-summary {
-    position: fixed;
-    bottom: 0;
+/* Empty State */
+.empty-state {
+    padding: 3rem 1rem;
+    text-align: center;
+}
+.empty-state i {
+    font-size: 3rem;
+    color: #d1d5db;
+    margin-bottom: 1rem;
+}
+
+/* Loading State */
+.loading-places {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+}
+.loading-skeleton {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: loading 1.5s infinite;
+    border-radius: 12px;
+    height: 300px;
+}
+@keyframes loading {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+/* Mobile Optimizations */
+@media (max-width: 640px) {
+    .place-card-result {
+        margin-bottom: 1rem;
+    }
+    
+    .location-group-header {
+        top: 56px;
+        padding: 0.75rem 0;
+    }
+    
+    .activity-tag {
+        font-size: 10px;
+        padding: 3px 6px;
+    }
+}
+
+/* Best Month Highlight */
+.best-month-card {
+    position: relative;
+}
+.best-month-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
     left: 0;
     right: 0;
-    background: white;
-    border-top: 2px solid #e5e7eb;
-    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
-    z-index: 40;
-    transform: translateY(100%);
-    transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    will-change: transform;
-}
-
-.selection-summary.show {
-    transform: translateY(0);
-}
-
-/* Disable hover effects on cards and buttons */
-.place-card:hover,
-.activity-card:hover {
-    transform: none !important;
-    box-shadow: inherit !important;
-}
-
-/* Performance optimizations */
-.place-card,
-.activity-card {
-    transform: translateZ(0);
-    backface-visibility: hidden;
-}
-
-* {
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
+    height: 4px;
+    background: linear-gradient(90deg, #009688, #00796b);
+    border-radius: 12px 12px 0 0;
 }
 

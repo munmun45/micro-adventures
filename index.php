@@ -1,395 +1,148 @@
 <?php
-$pageTitle = 'TravelApp - Premium Travel Experience';
+require_once 'config.php';
+$pageTitle = 'TravelApp - Discover Amazing Places';
 $pageCSS = 'index.css';
 include 'includes/head.php';
 include 'includes/navbar.php';
 include 'includes/overlay.php';
 include 'includes/sidebar.php';
+
+// Get popular activities for display
+$conn = getDBConnection();
+$activities_query = "SELECT * FROM activity_types WHERE status = 'active' ORDER BY id LIMIT 8";
+$activities_result = $conn->query($activities_query);
+$activities = [];
+if ($activities_result) {
+    while ($row = $activities_result->fetch_assoc()) {
+        $activities[] = $row;
+    }
+}
 ?>
 
-<section class="relative w-full max-w-7xl mx-auto mt-20 overflow-hidden slider-container">
-
-    <!-- Slider Wrapper -->
-    <div id="slider" class="relative h-[220px] md:h-[360px]">
-
-        <!-- Slide 1 -->
-        <div class="slide slide-fade absolute inset-0 opacity-100">
-            <div class="slider-image w-full h-full">
-                <img src="https://images.unsplash.com/photo-1501785888041-af3ef285b470"
-                    class="w-full h-full object-cover" alt="">
+<!-- Hero Section with Search -->
+<section class="relative w-full mt-14 sm:mt-16">
+    <div class="relative h-[200px] sm:h-[280px] md:h-[360px] overflow-hidden">
+        <div class="absolute inset-0 bg-gradient-to-br from-[#009688] to-[#00796b]">
+            <img src="https://images.unsplash.com/photo-1501785888041-af3ef285b470" 
+                 class="w-full h-full object-cover opacity-30" alt="Travel">
+        </div>
+        <div class="absolute inset-0 flex items-center justify-center px-4">
+            <div class="text-center text-white">
+                <h1 class="text-2xl sm:text-3xl md:text-4xl font-bold mb-2">Discover Amazing Places</h1>
+                <p class="text-sm sm:text-base text-white/90">Explore India's beautiful destinations</p>
             </div>
         </div>
-
-        <!-- Slide 2 -->
-        <div class="slide slide-fade absolute inset-0 opacity-0">
-            <div class="slider-image w-full h-full">
-                <img src="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee"
-                    class="w-full h-full object-cover" alt="">
-            </div>
-        </div>
-
-        <!-- Slide 3 -->
-        <div class="slide slide-fade absolute inset-0 opacity-0">
-            <div class="slider-image w-full h-full">
-                <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e"
-                    class="w-full h-full object-cover" alt="">
-            </div>
-        </div>
-
     </div>
-
-    <!-- DOTS -->
-    <div class="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-3 z-10">
-        <span class="dot slider-dot active w-2.5 h-2.5 bg-white rounded-full cursor-pointer"></span>
-        <span class="dot slider-dot w-2.5 h-2.5 bg-white/50 rounded-full cursor-pointer"></span>
-        <span class="dot slider-dot w-2.5 h-2.5 bg-white/50 rounded-full cursor-pointer"></span>
-    </div>
-
 </section>
 
-
-<!-- SEARCH SECTION -->
-<section class="relative -mt-12 z-20">
-    <div class="max-w-5xl mx-auto px-6">
-
-        <div class="bg-white rounded-3xl search-container border border-gray-100 p-6 md:p-8">
-            <form class="grid grid-cols-1 md:grid-cols-4 gap-5" action="search.php" method="GET">
-
-                <!-- Destination -->
-                <div class="md:col-span-3">
-                    <label class="text-sm font-medium text-gray-700 mb-2 block">Destination</label>
-                    <input type="text" name="destination" placeholder="Search places, states, cities"
-                        class="search-input w-full px-5 py-4 rounded-2xl border-2 border-gray-200 focus:border-black focus:ring-0 focus:outline-none transition-all duration-200 text-gray-900 placeholder-gray-400" />
+<!-- Advanced Search Section -->
+<section class="relative -mt-8 sm:-mt-12 z-20 px-4">
+    <div class="max-w-5xl mx-auto">
+        <div class="bg-white rounded-2xl shadow-xl border border-gray-100 p-4 sm:p-6 md:p-8">
+            <form action="search.php" method="GET">
+                <!-- Main Search Input -->
+                <div class="relative">
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">
+                        <i class="bi bi-search mr-1"></i> Search Places, Cities, States, or Activities
+                    </label>
+                    <div class="flex gap-2">
+                        <input type="text" 
+                               name="q" 
+                               id="searchInput"
+                               placeholder="e.g., 'Boating in Puri', 'Goa', 'Trekking in Munnar', 'Odisha'"
+                               value="<?php echo isset($_GET['q']) ? htmlspecialchars($_GET['q']) : ''; ?>"
+                               class="flex-1 px-4 py-3 sm:py-3.5 rounded-xl border-2 border-gray-200 focus:border-[#009688] focus:ring-2 focus:ring-[#009688]/20 focus:outline-none transition-all text-gray-900 placeholder-gray-400 text-sm sm:text-base"
+                               autocomplete="off">
+                        <button type="submit" 
+                                class="px-6 sm:px-8 py-3 sm:py-3.5 rounded-xl bg-gradient-to-r from-[#009688] to-[#00796b] text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-200 flex items-center justify-center gap-2 whitespace-nowrap">
+                            <i class="bi bi-search"></i>
+                            <span class="hidden sm:inline">Search</span>
+                        </button>
+                    </div>
+                    <div id="searchSuggestions" class="absolute z-30 w-full mt-1 bg-white rounded-xl shadow-lg border border-gray-200 hidden max-h-60 overflow-y-auto"></div>
                 </div>
-
-                <!-- Search Button -->
-                <div class="flex items-end">
-                    <button type="submit"
-                        class="premium-button w-full py-4 rounded-2xl bg-black text-white font-semibold hover:bg-gray-900 transition-all duration-200 shadow-lg hover:shadow-xl relative overflow-hidden">
-                        Search
-                    </button>
-                </div>
-
             </form>
         </div>
-
     </div>
 </section>
 
-
-
-<!-- BEST ACTIVITIES -->
-<section class="mt-12">
-    <div class="max-w-7xl mx-auto px-6">
-
-        <!-- Section Title -->
-        <div class="mb-6">
-            <h2 class="section-title text-2xl font-bold text-gray-900 mb-1">Popular Activities</h2>
-            <p class="section-subtitle text-sm text-gray-500">Discover amazing experiences</p>
+<!-- Popular Activities -->
+<?php if (!empty($activities)): ?>
+<section class="mt-8 sm:mt-12 px-4">
+    <div class="max-w-7xl mx-auto">
+        <div class="mb-4 sm:mb-6">
+            <h2 class="text-xl sm:text-2xl font-bold text-gray-900 mb-1">Popular Activities</h2>
+            <p class="text-xs sm:text-sm text-gray-500">Discover amazing experiences</p>
         </div>
-
-        <!-- Horizontal Scroll -->
-        <div class="flex overflow-x-auto scroll-smooth pb-4 gap-4 custom-scrollbar" style="padding-bottom: 20px;" >
-
-            <!-- ACTIVITY CARD -->
-            <button class="activity-card flex flex-col items-center min-w-[100px] focus:outline-none">
-                <div class="w-20 h-20 rounded-2xl overflow-hidden mb-3 shadow-lg ring-2 ring-gray-100">
-                    <img src="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee"
-                        class="activity-image w-full h-full object-cover">
+        <div class="flex overflow-x-auto gap-3 sm:gap-4 pb-4 scrollbar-hide" style="scrollbar-width: none; -ms-overflow-style: none;">
+            <?php foreach ($activities as $activity): ?>
+            <a href="search.php?activity=<?php echo $activity['id']; ?>" 
+               class="flex flex-col items-center min-w-[90px] sm:min-w-[110px] p-3 sm:p-4 bg-white rounded-xl shadow-sm hover:shadow-md transition-all border border-gray-100 group">
+                <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-xl overflow-hidden mb-2 sm:mb-3 shadow-md ring-2 ring-gray-100 group-hover:ring-[#009688] transition-all">
+                    <img src="<?php echo htmlspecialchars($activity['image']); ?>" 
+                         alt="<?php echo htmlspecialchars($activity['name']); ?>"
+                         class="w-full h-full object-cover">
                 </div>
-                <span class="text-xs font-semibold text-gray-800 text-center">
-                    Trekking
-                </span>
-            </button>
-
-            <!-- ACTIVITY CARD -->
-            <button class="activity-card flex flex-col items-center min-w-[100px]">
-                <div class="w-20 h-20 rounded-2xl overflow-hidden mb-3 shadow-lg ring-2 ring-gray-100">
-                    <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e"
-                        class="activity-image w-full h-full object-cover">
-                </div>
-                <span class="text-xs font-semibold text-gray-800 text-center">
-                    Boating
-                </span>
-            </button>
-
-            <!-- ACTIVITY CARD -->
-            <button class="activity-card flex flex-col items-center min-w-[100px]">
-                <div class="w-20 h-20 rounded-2xl overflow-hidden mb-3 shadow-lg ring-2 ring-gray-100">
-                    <img src="https://images.unsplash.com/photo-1501785888041-af3ef285b470"
-                        class="activity-image w-full h-full object-cover">
-                </div>
-                <span class="text-xs font-semibold text-gray-800 text-center">
-                    Camping
-                </span>
-            </button>
-
-            <!-- ACTIVITY CARD -->
-            <button class="activity-card flex flex-col items-center min-w-[100px]">
-                <div class="w-20 h-20 rounded-2xl overflow-hidden mb-3 shadow-lg ring-2 ring-gray-100">
-                    <img src="https://images.unsplash.com/photo-1500534314209-a25ddb2bd429"
-                        class="activity-image w-full h-full object-cover">
-                </div>
-                <span class="text-xs font-semibold text-gray-800 text-center">
-                    Beach
-                </span>
-            </button>
-
-            <!-- ACTIVITY CARD -->
-            <button class="activity-card flex flex-col items-center min-w-[100px]">
-                <div class="w-20 h-20 rounded-2xl overflow-hidden mb-3 shadow-lg ring-2 ring-gray-100">
-                    <img src="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee"
-                        class="activity-image w-full h-full object-cover">
-                </div>
-                <span class="text-xs font-semibold text-gray-800 text-center">
-                    Trekking
-                </span>
-            </button>
-
-            <!-- ACTIVITY CARD -->
-            <button class="activity-card flex flex-col items-center min-w-[100px]">
-                <div class="w-20 h-20 rounded-2xl overflow-hidden mb-3 shadow-lg ring-2 ring-gray-100">
-                    <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e"
-                        class="activity-image w-full h-full object-cover">
-                </div>
-                <span class="text-xs font-semibold text-gray-800 text-center">
-                    Boating
-                </span>
-            </button>
-
-            <!-- ACTIVITY CARD -->
-            <button class="activity-card flex flex-col items-center min-w-[100px]">
-                <div class="w-20 h-20 rounded-2xl overflow-hidden mb-3 shadow-lg ring-2 ring-gray-100">
-                    <img src="https://images.unsplash.com/photo-1501785888041-af3ef285b470"
-                        class="activity-image w-full h-full object-cover">
-                </div>
-                <span class="text-xs font-semibold text-gray-800 text-center">
-                    Camping
-                </span>
-            </button>
-
-            <!-- ACTIVITY CARD -->
-            <button class="activity-card flex flex-col items-center min-w-[100px]">
-                <div class="w-20 h-20 rounded-2xl overflow-hidden mb-3 shadow-lg ring-2 ring-gray-100">
-                    <img src="https://images.unsplash.com/photo-1500534314209-a25ddb2bd429"
-                        class="activity-image w-full h-full object-cover">
-                </div>
-                <span class="text-xs font-semibold text-gray-800 text-center">
-                    Beach
-                </span>
-            </button>
-
-        </div>
-    </div>
-</section>
-
-
-
-
-<!-- BEST PLACES THIS MONTH -->
-<section class="mt-16 mb-12">
-    <div class="max-w-7xl mx-auto px-6">
-
-        <!-- Section Title -->
-        <div class="flex items-center justify-between mb-6">
-            <div>
-                <h2 class="section-title text-2xl font-bold text-gray-900 mb-1">
-                    Visit This Month
-                </h2>
-                <p class="section-subtitle text-sm text-gray-500">Top destinations trending now</p>
-            </div>
-            <a href="#" class="premium-link text-sm font-semibold text-gray-700 hover:text-black transition-colors duration-200">
-                View all →
+                <span class="text-xs sm:text-sm font-semibold text-gray-800 text-center"><?php echo htmlspecialchars($activity['name']); ?></span>
             </a>
+            <?php endforeach; ?>
         </div>
+    </div>
+</section>
+<?php endif; ?>
 
-        <!-- Horizontal Scroll -->
-        <div id="monthScroll" class="flex gap-4 overflow-x-auto scroll-smooth snap-x snap-mandatory pb-4 custom-scrollbar">
-
-            <!-- CARD TEMPLATE -->
-            <div class="place-card card-hover-effect min-w-[260px] snap-start bg-white rounded-3xl shadow-lg border border-gray-100 overflow-hidden">
-                <div class="relative h-40 overflow-hidden">
-                    <img src="https://images.unsplash.com/photo-1548013146-72479768bada"
-                        class="place-image absolute inset-0 w-full h-full object-cover" />
-                    <button class="heart-button absolute top-3 right-3 bg-white/90 p-2 rounded-xl shadow-md">
-                        <svg class="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                        </svg>
-                    </button>
-                </div>
-
-                <div class="p-4">
-                    <h3 class="text-base font-bold text-gray-900 mb-1">Shillong</h3>
-                    <p class="text-xs text-gray-500 mb-3 font-medium">Meghalaya</p>
-
-                    <div class="flex flex-wrap gap-2">
-                        <span class="tag-badge px-3 py-1 text-xs font-medium bg-gray-100 text-gray-700 rounded-full">Nature</span>
-                        <span class="tag-badge px-3 py-1 text-xs font-medium bg-gray-100 text-gray-700 rounded-full">Hill</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- CARD -->
-            <div class="place-card card-hover-effect min-w-[260px] snap-start bg-white rounded-3xl shadow-lg border border-gray-100 overflow-hidden">
-                <div class="relative h-40 overflow-hidden">
-                    <img src="https://images.unsplash.com/photo-1589182373726-e4f658ab50f0"
-                        class="place-image absolute inset-0 w-full h-full object-cover" />
-                    <button class="heart-button absolute top-3 right-3 bg-white/90 p-2 rounded-xl shadow-md">
-                        <svg class="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                        </svg>
-                    </button>
-                </div>
-                <div class="p-4">
-                    <h3 class="text-base font-bold text-gray-900 mb-1">Jaipur</h3>
-                    <p class="text-xs text-gray-500 mb-3 font-medium">Rajasthan</p>
-                    <div class="flex gap-2">
-                        <span class="tag-badge px-3 py-1 text-xs font-medium bg-gray-100 text-gray-700 rounded-full">Heritage</span>
-                        <span class="tag-badge px-3 py-1 text-xs font-medium bg-gray-100 text-gray-700 rounded-full">Forts</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- CARD -->
-            <div class="place-card card-hover-effect min-w-[260px] snap-start bg-white rounded-3xl shadow-lg border border-gray-100 overflow-hidden">
-                <div class="relative h-40 overflow-hidden">
-                    <img src="https://images.unsplash.com/photo-1593693397690-362cb9666fc2"
-                        class="place-image absolute inset-0 w-full h-full object-cover" />
-                    <button class="heart-button absolute top-3 right-3 bg-white/90 p-2 rounded-xl shadow-md">
-                        <svg class="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                        </svg>
-                    </button>
-                </div>
-                <div class="p-4">
-                    <h3 class="text-base font-bold text-gray-900 mb-1">Kaziranga</h3>
-                    <p class="text-xs text-gray-500 mb-3 font-medium">Assam</p>
-                    <div class="flex gap-2">
-                        <span class="tag-badge px-3 py-1 text-xs font-medium bg-gray-100 text-gray-700 rounded-full">Wildlife</span>
-                        <span class="tag-badge px-3 py-1 text-xs font-medium bg-gray-100 text-gray-700 rounded-full">Safari</span>
-                    </div>
-                </div>
-            </div>
-            <!-- CARD TEMPLATE -->
-            <div class="place-card card-hover-effect min-w-[260px] snap-start bg-white rounded-3xl shadow-lg border border-gray-100 overflow-hidden">
-                <div class="relative h-40 overflow-hidden">
-                    <img src="https://images.unsplash.com/photo-1548013146-72479768bada"
-                        class="place-image absolute inset-0 w-full h-full object-cover" />
-                    <button class="heart-button absolute top-3 right-3 bg-white/90 p-2 rounded-xl shadow-md">
-                        <svg class="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                        </svg>
-                    </button>
-                </div>
-
-                <div class="p-4">
-                    <h3 class="text-base font-bold text-gray-900 mb-1">Shillong</h3>
-                    <p class="text-xs text-gray-500 mb-3 font-medium">Meghalaya</p>
-
-                    <div class="flex flex-wrap gap-2">
-                        <span class="tag-badge px-3 py-1 text-xs font-medium bg-gray-100 text-gray-700 rounded-full">Nature</span>
-                        <span class="tag-badge px-3 py-1 text-xs font-medium bg-gray-100 text-gray-700 rounded-full">Hill</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- CARD -->
-            <div class="place-card card-hover-effect min-w-[260px] snap-start bg-white rounded-3xl shadow-lg border border-gray-100 overflow-hidden">
-                <div class="relative h-40 overflow-hidden">
-                    <img src="https://images.unsplash.com/photo-1589182373726-e4f658ab50f0"
-                        class="place-image absolute inset-0 w-full h-full object-cover" />
-                    <button class="heart-button absolute top-3 right-3 bg-white/90 p-2 rounded-xl shadow-md">
-                        <svg class="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                        </svg>
-                    </button>
-                </div>
-                <div class="p-4">
-                    <h3 class="text-base font-bold text-gray-900 mb-1">Jaipur</h3>
-                    <p class="text-xs text-gray-500 mb-3 font-medium">Rajasthan</p>
-                    <div class="flex gap-2">
-                        <span class="tag-badge px-3 py-1 text-xs font-medium bg-gray-100 text-gray-700 rounded-full">Heritage</span>
-                        <span class="tag-badge px-3 py-1 text-xs font-medium bg-gray-100 text-gray-700 rounded-full">Forts</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- CARD -->
-            <div class="place-card card-hover-effect min-w-[260px] snap-start bg-white rounded-3xl shadow-lg border border-gray-100 overflow-hidden">
-                <div class="relative h-40 overflow-hidden">
-                    <img src="https://images.unsplash.com/photo-1593693397690-362cb9666fc2"
-                        class="place-image absolute inset-0 w-full h-full object-cover" />
-                    <button class="heart-button absolute top-3 right-3 bg-white/90 p-2 rounded-xl shadow-md">
-                        <svg class="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                        </svg>
-                    </button>
-                </div>
-                <div class="p-4">
-                    <h3 class="text-base font-bold text-gray-900 mb-1">Kaziranga</h3>
-                    <p class="text-xs text-gray-500 mb-3 font-medium">Assam</p>
-                    <div class="flex gap-2">
-                        <span class="tag-badge px-3 py-1 text-xs font-medium bg-gray-100 text-gray-700 rounded-full">Wildlife</span>
-                        <span class="tag-badge px-3 py-1 text-xs font-medium bg-gray-100 text-gray-700 rounded-full">Safari</span>
-                    </div>
-                </div>
-            </div>
-
+<!-- Best Places This Month -->
+<section class="mt-8 sm:mt-12 px-4 pb-12">
+    <div class="max-w-7xl mx-auto">
+        <div class="mb-4 sm:mb-6">
+            <h2 class="text-xl sm:text-2xl font-bold text-gray-900 mb-1">Best Places This Month</h2>
+            <p class="text-xs sm:text-sm text-gray-500">Perfect time to visit these destinations</p>
+        </div>
+        <div id="bestPlacesContainer" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <!-- Places will be loaded via AJAX -->
         </div>
     </div>
 </section>
 
 <script>
-    const slider = document.getElementById("slider");
-    const slides = document.querySelectorAll(".slide");
-    const dots = document.querySelectorAll(".dot");
-    let index = 0;
-    const totalSlides = slides.length;
-
-    function showSlide(i) {
-        // Hide all slides
-        slides.forEach((slide, idx) => {
-            if (idx === i) {
-                slide.style.opacity = "1";
-            } else {
-                slide.style.opacity = "0";
+// Load best places for current month
+document.addEventListener('DOMContentLoaded', function() {
+    fetch('api/get-best-places.php')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success && data.places) {
+                const container = document.getElementById('bestPlacesContainer');
+                if (data.places.length === 0) {
+                    container.innerHTML = '<p class="text-gray-500 text-sm col-span-full text-center py-8">No places found for this month</p>';
+                } else {
+                    container.innerHTML = data.places.map(place => `
+                        <a href="search.php?city=${place.city_id}&place=${place.id}" 
+                           class="bg-white rounded-xl shadow-sm hover:shadow-md transition-all overflow-hidden border border-gray-100 group">
+                            <div class="relative h-40 sm:h-48 overflow-hidden">
+                                <img src="${place.image}" alt="${place.name}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+                                <div class="absolute top-2 right-2 bg-[#009688] text-white text-xs font-semibold px-2 py-1 rounded-lg">
+                                    Best Now
+                                </div>
+                            </div>
+                            <div class="p-4">
+                                <h3 class="font-bold text-gray-900 mb-1 text-sm sm:text-base">${place.name}</h3>
+                                <p class="text-xs text-gray-600 mb-2">${place.city_name}, ${place.state_name}</p>
+                                <div class="flex items-center gap-2 text-xs text-gray-500">
+                                    <span><i class="bi bi-clock"></i> ${place.avg_visit_time_hours || '2-3'} hrs</span>
+                                    <span><i class="bi bi-shield-check"></i> ${place.safety_level || 'High'}</span>
+                                </div>
+                            </div>
+                        </a>
+                    `).join('');
+                }
             }
+        })
+        .catch(error => {
+            console.error('Error loading best places:', error);
+            document.getElementById('bestPlacesContainer').innerHTML = '<p class="text-gray-500 text-sm col-span-full text-center py-8">Unable to load places</p>';
         });
-
-        // Update dots
-        dots.forEach((dot, idx) => {
-            if (idx === i) {
-                dot.classList.remove("bg-white/50");
-                dot.classList.add("bg-white", "active");
-                dot.style.transform = "scale(1.3)";
-            } else {
-                dot.classList.remove("bg-white", "active");
-                dot.classList.add("bg-white/50");
-                dot.style.transform = "scale(1)";
-            }
-        });
-    }
-
-    function autoSlide() {
-        index = (index + 1) % totalSlides;
-        showSlide(index);
-    }
-
-    dots.forEach((dot, i) => {
-        dot.addEventListener("click", () => {
-            index = i;
-            showSlide(index);
-        });
-    });
-
-    // Initialize first slide
-    showSlide(0);
-    setInterval(autoSlide, 4000);
+});
 </script>
 
-<script src="includes/mobile-menu.js"></script>
-
-</body>
-
-</html>
+<?php include 'includes/footer.php'; ?>
 
