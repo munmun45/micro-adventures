@@ -181,6 +181,20 @@ include 'includes/sidebar.php';
         </div>
         <?php endif; ?>
     </div>
+
+    <!-- Booking Action -->
+    <div class="bg-white rounded-xl p-4 sm:p-6 border border-gray-100 shadow-sm">
+        <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div>
+                <h2 class="text-lg font-bold text-gray-900 mb-1">Ready to Book?</h2>
+                <p class="text-sm text-gray-600">Start your booking process</p>
+            </div>
+            <a href="transport-booking.php?places=<?php echo $place_id; ?>" 
+               class="px-6 py-3 bg-[#009688] text-white rounded-lg font-semibold hover:bg-[#00796b] transition-colors flex items-center justify-center gap-2 shadow-lg">
+                <i class="bi bi-calendar-check"></i> Book Now
+            </a>
+        </div>
+    </div>
 </section>
 
 <?php include 'includes/footer.php'; ?>

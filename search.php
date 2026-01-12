@@ -1212,29 +1212,67 @@ function selectAllVisible() {
 // Proceed to next step
 function proceedToNext() {
     const placesArray = Array.from(selectedPlaces);
-    const activitiesArray = Array.from(selectedActivities);
     
-    if (placesArray.length === 0 && activitiesArray.length === 0) {
+    // Extract activity data with prices (format: "activityId-placeId")
+    const activitiesData = [];
+    selectedActivities.forEach(activityKey => {
+        const parts = activityKey.split('-');
+        const activityId = parseInt(parts[0]);
+        const placeId = parseInt(parts[1]);
+        const activityData = activityDataMap[activityKey];
+        if (activityData) {
+            activitiesData.push({
+                id: activityId,
+                placeId: placeId,
+                priceMin: activityData.priceMin || 0,
+                priceMax: activityData.priceMax || 0
+            });
+        }
+    });
+    
+    // Calculate places price range
+    let placesPriceMin = 0;
+    let placesPriceMax = 0;
+    placesArray.forEach(placeId => {
+        const placeData = placeDataMap[placeId];
+        if (placeData) {
+            placesPriceMin += placeData.priceMin || 0;
+            placesPriceMax += placeData.priceMax || 0;
+        }
+    });
+    
+    // Calculate activities price range
+    let activitiesPriceMin = 0;
+    let activitiesPriceMax = 0;
+    activitiesData.forEach(activity => {
+        activitiesPriceMin += activity.priceMin || 0;
+        activitiesPriceMax += activity.priceMax || 0;
+    });
+    
+    if (placesArray.length === 0 && activitiesData.length === 0) {
         alert('Please select at least one place or activity');
         return;
     }
     
-    // You can redirect to a booking/planning page or handle the data as needed
+    // Redirect to transport booking page with all data
     const params = new URLSearchParams();
     if (placesArray.length > 0) {
         params.append('places', placesArray.join(','));
+        if (placesPriceMin > 0 || placesPriceMax > 0) {
+            params.append('places_price_min', placesPriceMin);
+            params.append('places_price_max', placesPriceMax);
+        }
     }
-    if (activitiesArray.length > 0) {
-        params.append('activities', activitiesArray.join(','));
+    if (activitiesData.length > 0) {
+        // Pass activities as JSON string
+        params.append('activities', JSON.stringify(activitiesData));
+        if (activitiesPriceMin > 0 || activitiesPriceMax > 0) {
+            params.append('activities_price_min', activitiesPriceMin);
+            params.append('activities_price_max', activitiesPriceMax);
+        }
     }
     
-    // For now, just show an alert. Replace with actual redirect
-    console.log('Selected Places:', placesArray);
-    console.log('Selected Activities:', activitiesArray);
-    alert('Selected ' + placesArray.length + ' places and ' + activitiesArray.length + ' activities. Redirect to booking page...');
-    
-    // Uncomment to redirect:
-    // window.location.href = 'booking.php?' + params.toString();
+    window.location.href = 'transport-booking.php?' + params.toString();
 }
 
 // Accordion/Collapse functionality - Only one group open at a time with smooth animations

@@ -249,6 +249,14 @@ $admin = getAdminInfo();
                                 <input type="number" step="0.01" class="form-control" id="hotelMaxPrice" name="max_price_per_night" placeholder="e.g., 5000.00">
                             </div>
                         </div>
+                        
+                        <div class="mb-3">
+                            <label for="hotelStatus" class="form-label">Status</label>
+                            <select class="form-control" id="hotelStatus" name="status">
+                                <option value="active">Active</option>
+                                <option value="inactive">Inactive</option>
+                            </select>
+                        </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
@@ -271,6 +279,7 @@ $admin = getAdminInfo();
             document.getElementById('formAction').value = 'add';
             document.getElementById('formId').value = '';
             document.getElementById('hotelForm').reset();
+            document.getElementById('hotelStatus').value = 'active';
         }
 
         function openEditModal(id, name, description, image, minPrice, maxPrice, status) {
@@ -278,11 +287,11 @@ $admin = getAdminInfo();
             document.getElementById('submitText').textContent = 'Update Hotel Type';
             document.getElementById('formAction').value = 'edit';
             document.getElementById('formId').value = id;
-            document.getElementById('hotelName').value = name;
-            document.getElementById('hotelDescription').value = description;
-            document.getElementById('hotelImage').value = image;
-            document.getElementById('hotelMinPrice').value = minPrice !== null ? minPrice : '';
-            document.getElementById('hotelMaxPrice').value = maxPrice !== null ? maxPrice : '';
+            document.getElementById('hotelName').value = name || '';
+            document.getElementById('hotelDescription').value = description || '';
+            document.getElementById('hotelImage').value = image || '';
+            document.getElementById('hotelMinPrice').value = (minPrice !== null && minPrice !== 'null') ? minPrice : '';
+            document.getElementById('hotelMaxPrice').value = (maxPrice !== null && maxPrice !== 'null') ? maxPrice : '';
             document.getElementById('hotelStatus').value = status || 'active';
             
             var modal = new bootstrap.Modal(document.getElementById('hotelModal'));
