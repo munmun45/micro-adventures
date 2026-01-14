@@ -34,6 +34,11 @@ $transport_price = isset($_GET['transport_price']) ? floatval($_GET['transport_p
 $transport_price_min = isset($_GET['transport_price_min']) ? floatval($_GET['transport_price_min']) : 0;
 $transport_price_max = isset($_GET['transport_price_max']) ? floatval($_GET['transport_price_max']) : 0;
 
+// Get user location data (passed from transport-booking.php)
+$my_location_lat = isset($_GET['my_lat']) ? floatval($_GET['my_lat']) : 0;
+$my_location_lng = isset($_GET['my_lng']) ? floatval($_GET['my_lng']) : 0;
+$my_location_address = isset($_GET['my_address']) ? $_GET['my_address'] : '';
+
 // Get city information from selected places
 $selected_city = null;
 $places_info = [];
@@ -353,6 +358,15 @@ function submitBooking() {
     <?php if ($transport_price_min > 0 || $transport_price_max > 0): ?>
     params.append('transport_price_min', '<?php echo $transport_price_min; ?>');
     params.append('transport_price_max', '<?php echo $transport_price_max; ?>');
+    <?php endif; ?>
+    
+    // Preserve user location data
+    <?php if ($my_location_lat && $my_location_lng): ?>
+    params.append('my_lat', '<?php echo $my_location_lat; ?>');
+    params.append('my_lng', '<?php echo $my_location_lng; ?>');
+    <?php if ($my_location_address): ?>
+    params.append('my_address', <?php echo json_encode($my_location_address); ?>);
+    <?php endif; ?>
     <?php endif; ?>
     
     // Add hotel data

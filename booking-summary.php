@@ -486,9 +486,8 @@ include 'includes/sidebar.php';
 
 <script>
 function confirmBooking() {
-    // Here you can add code to save booking to database or redirect to payment page
-    alert('Booking confirmed! Thank you for your booking.\n\nTotal Amount: ₹<?php echo number_format($total_price, 2); ?>\n\nYou will be redirected to payment page.');
-    // window.location.href = 'payment.php?<?php echo http_build_query($_GET); ?>';
+    // Redirect to travel plan page with all booking details
+    window.location.href = 'travel-plan.php?<?php echo http_build_query($_GET); ?>';
 }
 </script>
 

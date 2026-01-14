@@ -894,6 +894,16 @@ function proceedToNext() {
         }
     }
     
+    // Add user's current location data
+    params.append('my_lat', myLocation.lat);
+    params.append('my_lng', myLocation.lng);
+    
+    // Get address from location
+    const locationAddress = document.getElementById('location-address');
+    if (locationAddress && locationAddress.textContent) {
+        params.append('my_address', locationAddress.textContent);
+    }
+    
     // Redirect to stay booking page
     window.location.href = 'stay-booking.php?' + params.toString();
 }

@@ -5,6 +5,12 @@ define('DB_USER', 'root');
 define('DB_PASS', '');
 define('DB_NAME', 'travelapp_admin');
 
+// Gemini API Configuration
+// Model: gemini-3-flash-preview (2026 version)
+// In production, use environment variable: getenv('GEMINI_API_KEY')
+// For now, keep it here but NEVER commit to public repos
+define('GEMINI_API_KEY', 'AIzaSyARp_0r1JcQOoNCWdjRRiE3jKLuc1dr0qo');
+
 // Database Connection
 function getDBConnection() {
     static $conn = null;
